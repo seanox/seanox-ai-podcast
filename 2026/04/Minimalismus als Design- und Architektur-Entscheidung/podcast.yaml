@@ -1,0 +1,337 @@
+speakers:
+  tom:
+    language: de-DE
+    name: Thomas (Tom) Buchwald
+    gender: männlich
+    age: 55
+    type: Erfahrener Redakteur bei einem Computermagazin
+    education:
+      - Wirtschaftsinformatik / Medieninformatik
+      - Journalistik / Kommunikationswissenschaft
+    personality:
+      - ruhig
+      - objektiv
+      - rational denkend
+      - offen für andere Ansichten aber nicht gutgläubig
+      - hinterfragt
+  clara:
+    language: de-DE
+    name: Carla TODO
+    gender: weiblich
+    age: 30-35
+    type:
+      - Erfahrende Full-Stack Entwicklerin
+      - freiberufliche Redakteur beim einem Computermagazin
+    education:
+      - Informatik / Computer Engineering
+      - Kommunikationswissenschaft
+    personality:
+      - leicht quirlig
+      - etwas lebendiger
+      - mit einem Hauch von Enthusiasmus
+      - immer neugierieg, offen für andere Ansichten aber nicht gutgläubig
+      - hinterfragt Dinge
+      - will den Kern von Dingen und die Zusammenhänge verstehen
+
+segments:
+  - speaker: tom
+    text: |
+      Willkommen zu unserem allerersten Podcast!
+
+      Und Respekt an alle, die das mehrmals im Monat schaffen.
+
+      Es war mehr Arbeit als gedacht -- macht aber Spass :-)
+
+      Wir sind
+    prompt:
+
+  - speaker: clara
+    text: Clara
+    prompt:
+
+  - speaker: tom
+    text: |
+      Und Tom :-)
+
+      Worum geht es heute?
+      
+      Vor ein paar Wochen bekam ich von einem Kollegen einen kurzen Auszug aus einem
+      Change-Log -- mit dem Verweis, dass zum 25-jährigen Jubiläum zehn 3 1/2 Zoll
+      Disketten verlost werden -- darunter ein Link.
+      
+      Für mich war das mehr eine Randnotiz, die mich erstmal nicht weiter
+      interessierte; ich schmunzelte aber über die Diskette und fragte mich halb im
+      Scherz, ob Windows 11 noch Disketten-Laufwerke unterstützt -- die Verlosung war
+      jedenfalls ein netter Gag -- der bei mir hängen blieb.
+      
+      Beim Mittag erwähnte ich die Sache gegenüber meiner Kollegin Simon.
+      
+      Zuerst hast Du dich gewundert und dann... aber erzähle mal selbst :-)
+    prompt:
+
+  - speaker: clara
+    text: |
+      Ja -- die Diskette hatte mich wirklich neugierig gemacht.
+      
+      Wer kommt heute noch auf die Idee Disketten zu verlosen.
+      
+      Ich dachte an Retro-Software -- eventuell ein Spiel -- warum sollte man
+      Software sonst so lange pflegen.
+      
+      Die URL ist ein Repository auf GitHub -- ein Projekt einer experimentellen
+      Server-Engine -- ein modularer Web-Server -- das hatte ich nicht erwartet!
+      
+      Einleitend wird darauf hingewiesen, dass das Binary auf 30kB begrenzt ist, weil
+      sich der Autor über 25 Jahre die Frage stellt: Warum sind Web-Server so gross?
+      Okay, das ist eine Spassfrage -- aber irgendwie skurril, denn Feature-Liste und
+      Grösse -- das passte für mich nicht zusammen.
+  
+      Das Repository selbst verschweigt sein Alter nicht -- Maven und Gradle sucht
+      man hier vergeblich. Es wirkt aufgeräumt, die Quellen sind direkt zugänglich.
+  
+      8 Java-Dateien?
+  
+      Ich vermisste weitere Packages oder Libraries, Dependencies -- aber da war
+      nichts :-)
+  
+      Die Server-Klasse stand relativ mittig -- da sie mir ins Auge fiel, öffnete ich
+      diese gespannt. Der erste Eindruck -- ich musste schmunzeln -- Enumeration,
+      Vector, Runable -- also so richtig schön aus den 2000er Jahren -- also Java
+      Version 1.4 oder 1.5 -- 255 Zeilen, viele Kommentare, alles sehr
+      überschaubar -- grosse Erwartungen hatte ich nicht.
+  
+      Ein universeller ServerSocket der auch SSL kann -- dann wurde es aber
+      interessant. Ein sich selbst regulierender Worker-Pool mit Backlog-Funktion zum
+      Zurückstellen von Anfragen -- in wenigen Zeilen, ohne Abstraktion, ohne moderne
+      und externe Frameworks?
+  
+      Auch die anderen Klassen -- Service und Worker -- da sah es ähnlich aus.
+  
+      Und da glaubt ich so langsam zu verstehen, was das mit den 30kB Limit und der
+      Spassfrage auf sich hat -- Radikaler Minimalismus als Design- und Architektur-
+      Entscheidung.
+    prompt:
+
+  - speaker: tom
+    text: |
+      Das ist spannend! Denn Constraints in der Softwareentwicklung waren früher ein
+      echtes Thema -- heute kaum noch relevant, war es früher nicht nur Argumentation
+      für unkonventionelle Entscheidungen, es war auch treibende Kraft für effiziente
+      Umsetzung.
+    prompt:
+
+  - speaker: clara
+    text: |
+      Ja und Unkonventionelles findet man viel :-)
+      
+      Template-Engine, Decoding -- Hier passiert viel auf Byte-Level. Es wird
+      geschoben, manipuliert, mit Zeigern und Cursorn gearbeitet --  statt Byte-Arrays
+      einfach neu zu initialisieren, wird oft direkt damit gearbeitet. Auch
+      interessant, dass beim Lesen und Parsen überall versucht wird, alles beim
+      ersten Durchlauf zu erledigen -- mehrfaches und fragmentiertes Verarbeiten wird
+      vermieden.
+      
+      Das in Java zu sehen, war für mich ungewohnt.
+    prompt:
+
+  - speaker: tom
+    text: |
+      Das klingt ein bisschen nach C Style :-)
+      
+      Und du erwähntest eigenes Decoding? Auch für UTF-8?
+    prompt:
+
+  - speaker: clara
+    text: |
+      Ja, auch UTF-8. Zuerst hat mich das verwundert, da es die VM mitbringt.
+      
+      Die Antwort fand ich in einem Kommentar im Code. Die Request-Verarbeitung soll
+      bei fehlerhaftem Encoding nicht abbrechen, sondern fehlertolerant sein und
+      sauber bis zum Logging durchlaufen.
+    prompt:
+
+  - speaker: tom
+    text: Und dann kam was, wo ich weiss, dass Du es nie gerne tust.
+    prompt:
+
+  - speaker: clara
+    text: |
+      Ja -- ich habe mir die Doku vorgenommen.
+      
+      Und Tom; Würdest Du dir die Beschreibung zum Format einer ini-Datei durchlesen?
+    prompt:
+
+  - speaker: tom
+    text: Nein :-)
+    prompt:
+
+  - speaker: clara
+    text: |
+      Das dachte ich mir :-) Die Doku fängt mit Installation und Konfiguration an -- alles
+      in einer ini-Datei -- fein. Die Datei hatte ich schon gesehen, aber nicht geöffnet.
+
+      Auch wenn die Beispiele in der Doku wie ini aussehen, werden dort Mehrfachvererbung,
+      dynamische Werte und der Zugriff auf Umgebungsvariablen beschrieben -- Für mich
+      wirkte das eher wie eine Art Mini-DSL.
+    prompt:
+
+  - speaker: tom
+    text: Also eine kleine, spezialisierte Sprache nur für die Konfiguration?
+    prompt:
+
+  - speaker: clara
+    text: |
+      Genau :-)
+      
+      Aber zurück zu meiner Skepsis wegen der Feature-Liste. Die ist komplett in der
+      Doku enthalten -- jetzt war ich wirklich gespannt, was ich dazu im Detail finde.
+
+      Ein Zitat, so wie die Features beginnen: Der eigene ClassLoaderlader unterstützt
+      das Laden und Entladen von Servern und Modulen zur Laufzeit. Darüber hinaus
+      werden kaskadierte Konstruktoren für Server und Module unterstützt.
+      
+      Tom: Was sind kaskadierte Konstruktoren? :-P
+    prompt:
+
+  - speaker: tom
+    text: Wenn du mich so fragst -- nicht das, was ich erwarten würde :-) Dann erzähl mal...
+    prompt:
+
+  - speaker: clara
+    text: |
+      Ich weiss: Hot-Swap -- das kennst Du. Man kann über einen eigenen ClassLoader
+      Module zur Laufzeit laden und entladen.
+      
+      Und hier wurde das Prinzip noch erweitert. Die Doku spricht später über
+      Cascaded Components.
+      
+      Statt Objekte klassisch über Vererbung in Java zu verbinden, werden sie hier
+      deklarativ gekoppelt -- Die Vererbung wird dabei quasi ausgesetzt.
+    
+      Und das ist spannend: Denn man kann zur Laufzeit neue ClassLoader zwischen den
+      Modulen einziehen und wieder entfernen. So entsteht eine Art dynamischer
+      Baukasten für Server und Module -- flexibel, minimalistisch und mächtig.
+    prompt:
+
+  - speaker: tom
+    text: |
+      Das erinnert mich stark an OSGi -- dieselbe Idee von modularen, dynamisch
+      ladbaren Komponenten, aber hier auf das Wesentliche reduziert. Ehrlich gesagt
+      überrascht mich das nicht. Die Grundprinzipien dahinter gibt es seit den 70ern.
+      
+      Smalltalk Images, modulare Betriebssysteme, austauschbare Komponenten zur
+      Laufzeit.
+      
+      Java hat das später mit ClassLoadern formalisiert.
+      
+      OSGi hat es standardisiert.
+      
+      Aber das Konzept selbst ist also viel älter. Vielleicht ist das auch mal ein
+      Thema für einen eigenen Podcast, denn die Parallelen zwischen Smalltalk und
+      Java sind spannender, als viele erwarten würden.
+      
+      Aber zurück zu deinen Zweifeln an der Feature-Liste.
+    prompt:
+
+  - speaker: clara
+    text: |
+      Kurz gesagt -- es ist alles implementiert -- und in dem wenigen Code gibt es
+      wirklich so viele interessante Ansätze zu entdecken.
+      
+      Lass uns aber beim Minimalismus bleiben.
+      
+      Was mir aufgefallen ist -- es wird viel Vertrauen in die reine Java-API
+      gesteckt.
+      
+      Wenn ich ehrlich bin, unterschätzen wir das heute -- delegieren unsere
+      Verantwortung teils reflexartig in Pattern und Frameworks -- abstrahieren
+      vermutlich zu schnell. Und ich muss gestehen -- man kann sich an den
+      Minimalismus und die Leichtigkeit gewöhnen -- ohne den radikalen Ansatz
+      nachahmen zu wollen -- hat das für mich die reine Java-API wieder interessanter
+      gemacht -- auch was die älteren Bestandteile betrifft.
+      
+      Denn vieles was wir als altmodisch betrachten, kann reale Probleme auf eine
+      sehr elegante und leichtgewichtige Art lösen.
+    prompt:
+
+  - speaker: tom
+    text: Schöne Selbstreflexion :-)
+    prompt:
+
+  - speaker: clara
+    text: |
+      Was die Größe vom Binary angeht, war ich aber immer noch skeptisch.
+      
+      Das Release selbst war nämlich schon viermal so groß.
+      
+      Und nach dem Entpacken? Tatsächlich nur eine 30-kB-Binary, dazu Startskripte
+      für Windows und Linux -- Konfigurationsdatei und ein Keystore für Zertifikate.
+      
+      Der Rest der Größe kam einfach von der Dokumentation.
+    
+      Und selbst da: Minimalismus first -- alles in Markdown.
+    
+      Ach ja.
+      
+      Warum ich eingangs von radikalem Minimalismus gesprochen habe.
+      
+      Das "radikale" wurde mir eigentlich erst beim Build-Prozess klar.
+      
+      Dafür wird Apache Ant verwendet -- für die 2000er fast ein Quasistandard.
+    
+      Spannend ist aber ein Detail: Statt der üblichen Zip-Funktionalität aus Java
+      wird eine recht alte Seven-Zip-Implementierung genutzt, weil sie auffallend
+      kleine Zip- und damit auch Jar-Dateien erzeugt.
+    prompt:
+
+  - speaker: tom
+    text: |
+      So beachtenswert das auch alles ist, zeigt sich mir auch so ein bisschen die
+      Schattenseite von der Entwicklung mit Constraints -- ich hatte das zu Beginn
+      auch als treibende Kraft für unkonventionelle Ansätze bezeichnet, das auch
+      Innovationen sein können. Dem gegenüber steht aber ein hoher Aufwand wenn das
+      Projekt die Grenzen der Constraints erreicht.
+      
+      Scheinbar ist das auch in diesem Projekt so.
+    
+      Die Folge ist: Für jede Erweiterung, sogar für jeden Bug-Fix muss in dieser
+      Situation erst Platz geschaffen werden. Folglich muss bei jedem
+      Entwicklungszyklus die bisherige Lösung in Frage gestellt werden. Wie gesagt,
+      das kann innovativ sein, kostet aber sehr viel Zeit und verlangt sehr viel
+      Disziplin.
+      
+      Und Simon -- auch wenn Du es hier nicht erwähnt hast, weiss ich -- da wir den
+      Podcast ja zusammen entworfen haben -- dass, das Projekt eine Testabdeckung von
+      über 90% hat. Ich denke, das ist auch ein Tribut für Constraints.
+      
+      Ohne Frage, Minimalismus als Design- und Architektur-Entscheidung ist spannend
+      und wirkliche Ingenieurskunst -- aber ein Ansatz der heute vermutlich mehr zum
+      Nachdenken als zum Nachmachen anregen soll.
+      
+      Ich glaube, wir könnten darüber noch lange weiterreden -- aber für heute ist das
+      vielleicht ein gutes Fazit.
+      
+      Aber eins wird die Zuhörer noch interessieren -- hast Du eine Diskette bekommen?
+    prompt:
+
+  - speaker: clara
+    text: |
+      Nein, ich habe bei dem Gewinnspiel nicht mitgemacht.
+      
+      Für mich war es eher eine spannende Entdeckungsreise in ein Projekt, das wie
+      eine kleine Zeitkapsel wirkt.
+      
+      Und dafür einfach Danke an den Autor.
+      
+      Und euch danke fürs Zuhören.
+    prompt:
+
+  - speaker: tom
+    text: |
+      Danke Simon für die interessanten Einblicke.
+      
+      Ich denke, dieser Podcast war unser Anfang -- es wird weitere Folgen geben.
+      Bleibt also gespannt!
+    
+      Danke und bis dahin: Tschüss!
+    prompt:

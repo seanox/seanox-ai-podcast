@@ -1,6 +1,7 @@
 speakers:
   tom:
     language: de-DE
+    voice:
     name: Thomas (Tom) Buchwald
     gender: männlich
     age: 55
@@ -17,6 +18,7 @@ speakers:
       - hinterfragt
   cleo:
     language: de-DE
+    voice:
     name: Claire (Cleo) Renard
     gender: weiblich
     age: 30-35
@@ -30,7 +32,7 @@ speakers:
       - leicht quirlig
       - etwas lebendiger
       - mit einem Hauch von Enthusiasmus
-      - immer neugierieg, offen für andere Ansichten aber nicht gutgläubig
+      - immer neugierig, offen für andere Ansichten aber nicht gutgläubig
       - hinterfragt Dinge
       - will den Kern von Dingen und die Zusammenhänge verstehen
 
@@ -276,8 +278,6 @@ segments:
       Aber alles sehr minimalistisch.
       Was das sehr flexibel und mächtig machen muss.
     prompt:
-
----
 
   - speaker: tom
     offset:

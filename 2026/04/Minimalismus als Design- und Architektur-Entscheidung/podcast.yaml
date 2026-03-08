@@ -40,11 +40,11 @@ segments:
     text: |
       Willkommen zu unserem allerersten Podcast!
 
-      Und Respekt an alle, die das mehrmals im Monat schaffen.
+      Und Respekt an alle -- die das mehrmals im Monat schaffen.
 
       Es war mehr Arbeit als gedacht -- macht aber Spass :-)
 
-      Wir sind
+      Wir sind:
     prompt:
 
   - speaker: cleo
@@ -59,22 +59,22 @@ segments:
 
       Worum es heute geht?
       
-      Vor ein paar Wochen bekam ich von einem Kollegen einen Link zu einem
-      Gewinnspiel -- bei dem 3n halb Zoll Disketten verlost werden -- das
-      Projekt dahinter wird nämlich 25 Jahre alt.
+      Vor ein paar Wochen bekam ich von einem Kollegen einen Link zu einem Gewinnspiel.
+      Bei dem 3 einhalb Zoll Disketten verlost werden.
+      Das Projekt dahinter wird nämlich 25 Jahre alt.
       
-      Schöner -- netter -- Gag :-) Bei der Diskette musste ich automatisch
-      schmunzeln. Und ich habe mich tatsächlich gefragt, ob Windows 11 noch
-      Diskettenlaufwerke unterstützt.
+      Schöner -- netter -- Gag :-)
+      Bei der Diskette musste ich automatisch schmunzeln.
+      Und ich habe mich tatsächlich gefragt, ob Windows 11 noch Diskettenlaufwerke unterstützt.
       
       Nebenbei: Ja, tut es.
   
-      Jedenfalls die Diskette blieb hängen -- und beim Mittagessen erwähnte ich
-      die Sache gegenüber meiner lieben Kollegin Leo.
+      Jedenfalls die Diskette blieb hängen.
+      Und beim Mittagessen erwähnte ich die Sache gegenüber meiner lieben Kollegin Cleo.
       
       Ich weiss gar nicht, ob Du noch mit Disketten zu tun hattest?
       
-      Jedenfalls warst du ziemlich verwundert ... aber erzähle mal selbst :-)
+      Jedenfalls warst du ziemlich verwundert ... aber erzähl mal selbst :-)
     prompt:
 
   - speaker: cleo
@@ -87,35 +87,38 @@ segments:
       Ich dachte an Retro-Software -- vielleicht ein altes Spiel.
       Warum sollte man Software sonst so lange pflegen?
       
-      Jedenfalls -- die URL gehört zu einem Repository auf GitHub -- ein Projekt
-      für eine experimentelle Server-Engine -- ein modularer Web-Server.
+      Jedenfalls -- die URL gehört zu einem Repository auf GitHub.
+      Ein Projekt für eine experimentelle Server-Engine -- ein modularer Web-Server.
       
       Und damit hatte ich wirklich nicht gerechnet!
 
-      Aber es wurde noch skurriler -- da Eingangs gleich darauf hingewiesen wird,
-      dass das Binary auf nur 30 Kilobyte begrenzt ist. Der Entwickler stellt
-      zwar klar, dass es eine 25 Jahre alte Spassfrage ist -- Warum Web-Server
-      so gross sind?
+      Aber es wurde noch skurriler.
+      Gleich Eingangs wird darauf hingewiesen, dass das Binary auf nur 30 Kilobyte begrenzt ist.
+      Es wird zwar klar gestellt, dass es eine 25 Jahre alte Spassfrage ist -- Warum Web-Server so gross sind?
       
       Aber 30 Kilobyte?
       
       Für mich wollte das mit der Feature-Liste einfach nicht zusammenpassen.
       
-      Das Repository macht einen sehr aufgeräumten Eindruck -- aus seinem Alter
-      macht es kein Geheimnis. Maven oder Gradle? Findet man hier nicht.
+      Das Repository macht einen sehr aufgeräumten Eindruck.
+      Aus seinem Alter macht es kein Geheimnis.
+      Maven oder Gradle?
+      Findet man hier nicht.
 
       Die Quellen sind direkt zugänglich.
       Aber ... 8 Java-Dateien?
       Ich suchte weitere Packages -- Libraries -- Dependencies...
       Nur da war nichts :-)
       
-      Die Server-Klasse stand ziemlich mittig und fiel mir vermutlich thematisch
-      auf. Da musste ich einfach mal reinschauen...
+      Die Server-Klasse stand ziemlich mittig und fiel mir vermutlich thematisch auf.
+      Da musste ich einfach mal reinschauen...
       
-      Der erste Eindruck -- ehrlich? -- ich musste schmunzeln -- Enumeration,
-      Vector, Runable -- also so richtig schön aus den 2000er Jahren -- also
-      Java Version 1.4 oder 1.5 -- 255 Zeilen, viele Kommentare, alles sehr
-      überschaubar.
+      Der erste Eindruck.
+      Ehrlich?
+      Ich musste schmunzeln.
+      Enumeration, Vector, Runable -- also so richtig schön aus den 2000ern.
+      Also Java Version 1.4 oder 1.5.
+      255 Zeilen -- viele Kommentare -- alles sehr überschaubar.
       
       Also... wirklich grosse Erwartungen hatte ich da nicht.
       
@@ -123,63 +126,73 @@ segments:
       
       Aber dann wurde es interessanter.
       
-      Ein sich selbst regulierender Worker-Pool -- mit Backlog-Funktion -- zum
-      Zurückstellen von Anfragen -- in wenigen Zeilen -- ohne Abstraktion --
-      ohne moderne und externe Frameworks?
+      Ein sich selbst regulierender Worker-Pool -- mit Backlog -- in wenigen Zeilen -- ohne Abstraktion -- ohne moderne und externe Frameworks?
       
       Und die anderen Klassen?
       Service, Worker ... da sah es ähnlich aus.
       
-      Ab da glaubte ich so langsam zu verstehen, was das mit den 30kB Limit und
-      der Spassfrage auf sich hat -- Radikaler Minimalismus als Design- und
-      Architektur-Entscheidung.      
+      Da glaubte ich langsam zu verstehen, was das mit den 30 Kilobyte Limit und der Spassfrage auf sich hat.
+      Radikaler Minimalismus als Design- und Architektur-Entscheidung.
     prompt:
 
   - speaker: tom
     offset:
     text: |
-      Das ist spannend! Denn Constraints in der Softwareentwicklung waren früher ein
-      echtes Thema -- heute kaum noch relevant, war es früher nicht nur Argumentation
-      für unkonventionelle Entscheidungen, es war auch treibende Kraft für effiziente
-      Umsetzung.
+      Spannend!
+      Constraints in der Softwareentwicklung waren lange Zeit ein echtes Thema.
+      Heute ist das kaum noch relevant.
+      Früher war das aber Argumentation für unkonventionelle Entscheidungen.
+      Und eine treibende Kraft für effiziente Umsetzung.
     prompt:
 
   - speaker: cleo
     offset:
     text: |
-      Ja und Unkonventionelles findet man viel :-)
+      Ja :-)
+      Unkonventionelles findet man in den Projekt viel :-)
       
-      Template-Engine, Decoding -- Hier passiert viel auf Byte-Level. Es wird
-      geschoben, manipuliert, mit Zeigern und Cursorn gearbeitet --  statt Byte-Arrays
-      einfach neu zu initialisieren, wird oft direkt damit gearbeitet. Auch
-      interessant, dass beim Lesen und Parsen überall versucht wird, alles beim
-      ersten Durchlauf zu erledigen -- mehrfaches und fragmentiertes Verarbeiten wird
-      vermieden.
+      Template-Engine, Decoding -- Hier passiert viel auf Byte-Level.
+      Es wird geschoben, manipuliert, mit Zeigern und Cursorn...
+      Statt Byte-Arrays neu zu initialisieren -- wird oft direkt damit gearbeitet.
       
-      Das in Java zu sehen, war für mich ungewohnt.
+      Und solche kleinen Details findet man ganz viel.
+      
+      Auch das Lesen und Parsen -- alles beim ersten Durchlauf.
+      Mehrfaches -- fragmentiertes Verarbeiten -- das wird bewusst vermieden. 
+      
+      Und das in Java?
+      
+      Für mich war das erstmal ungewohnt.
+
     prompt:
 
   - speaker: tom
     offset:
     text: |
-      Das klingt ein bisschen nach C Style :-)
+      Ein bisschen wie in C :-)
       
-      Und du erwähntest eigenes Decoding? Auch für UTF-8?
+      Und du erwähntest eigenes Decoding?
+      
+      Auch für UTF-8?
     prompt:
 
   - speaker: cleo
     offset:
     text: |
-      Ja, auch UTF-8. Zuerst hat mich das verwundert, da es die VM mitbringt.
+      Ja -- Auch UTF-8.
       
-      Die Antwort fand ich in einem Kommentar im Code. Die Request-Verarbeitung soll
-      bei fehlerhaftem Encoding nicht abbrechen, sondern fehlertolerant sein und
-      sauber bis zum Logging durchlaufen.
+      :-) Dich macht das auch stutzig -- weil die VM es ja schon mitbringt?
+      
+      Die Antwort dazu ist simpel.
+      Aber ehrlich gesagt -- ich musste mich da auch erst reindenken.
+      
+      Denn die Request-Verarbeitung soll bei fehlerhaftem Encoding nicht abbrechen.
+      Sondern sauber bis zum Logging durchlaufen -- was die Methode der VM nicht kann.
     prompt:
 
   - speaker: tom
     offset:
-    text: Und dann kam was, wo ich weiss, dass Du es nie gerne tust.
+    text: Und dann kam was -- wo ich weiss -- dass Du es nie gerne tust :-)
     prompt:
 
   - speaker: cleo
@@ -187,7 +200,8 @@ segments:
     text: |
       Ja -- ich habe mir die Doku vorgenommen.
       
-      Und Tom; Würdest Du dir die Beschreibung zum Format einer ini-Datei durchlesen?
+      Und Tom; Würdest Du die Beschreibung zum Format einer ini-Datei lesen?
+      Also ich meine wirklich das Format -- nicht die Bedeutung der Sektionen und Schlüssel.
     prompt:
 
   - speaker: tom
@@ -198,12 +212,18 @@ segments:
   - speaker: cleo
     offset:
     text: |
-      Das dachte ich mir :-) Die Doku fängt mit Installation und Konfiguration an -- alles
-      in einer ini-Datei -- fein. Die Datei hatte ich schon gesehen, aber nicht geöffnet.
+      Dachte ich mir :-)
+      
+      Die Doku fängt mit Installation und Konfiguration an.
+      Alles in einer ini-Datei -- fein.
+      
+      Die Datei hatte ich zwar schon gesehen, aber nicht geöffnet.
 
-      Auch wenn die Beispiele in der Doku wie ini aussehen, werden dort Mehrfachvererbung,
-      dynamische Werte und der Zugriff auf Umgebungsvariablen beschrieben -- Für mich
-      wirkte das eher wie eine Art Mini-DSL.
+      Und auch wenn in der Doku die Beispiele wie ini aussehen -- das ist keins!
+      
+      Mehrfachvererbung -- dynamische Werte -- Zugriff auf Umgebungsvariablen...
+      
+      Das ist eine Art Mini-DSL.
     prompt:
 
   - speaker: tom
@@ -216,79 +236,88 @@ segments:
     text: |
       Genau :-)
       
-      Aber zurück zu meiner Skepsis wegen der Feature-Liste. Die ist komplett in der
-      Doku enthalten -- jetzt war ich wirklich gespannt, was ich dazu im Detail finde.
+      Aber zurück zu meiner Skepsis wegen der Feature-Liste.
+      Und warum mich die Doku interessierte.
 
-      Ein Zitat, so wie die Features beginnen: Der eigene ClassLoaderlader unterstützt
-      das Laden und Entladen von Servern und Modulen zur Laufzeit. Darüber hinaus
-      werden kaskadierte Konstruktoren für Server und Module unterstützt.
+      Allein der Begriff Feature-Liste.
+      Nur mal ein Auszug aus dem ersten Eintrag:
+      
+      Der eigene ClassLoader unterstützt das Laden und Entladen von Servern und Modulen zur Laufzeit.
+      Darüber hinaus werden kaskadierte Konstruktoren für Server und Module unterstützt.
       
       Tom: Was sind kaskadierte Konstruktoren? :-P
     prompt:
 
   - speaker: tom
     offset:
-    text: Wenn du mich so fragst -- nicht das, was ich erwarten würde :-) Dann erzähl mal...
+    text: |
+      Wenn du mich so fragst -- nicht das, was ich erwarten würde :-)
+      
+      Erzähl mal...
     prompt:
 
   - speaker: cleo
     offset:
     text: |
-      Ich weiss: Hot-Swap -- das kennst Du. Man kann über einen eigenen ClassLoader
-      Module zur Laufzeit laden und entladen.
+      Hot-Swap -- Über eigene ClassLoader kann man Module zur Laufzeit laden und entladen.
+      Ich weiss, das kennst du.
       
-      Und hier wurde das Prinzip noch erweitert. Die Doku spricht später über
-      Cascaded Components.
+      Und hier wurde das Prinzip erweitert.
+      Später wird das in der Doku als Cascaded Components beschrieben.
       
-      Statt Objekte klassisch über Vererbung in Java zu verbinden, werden sie hier
-      deklarativ gekoppelt -- Die Vererbung wird dabei quasi ausgesetzt.
+      Also, statt Objekte über Vererbung zu verbinden -- was ja klassisch für Java ist.
+      Werden die Objekte hier deklarativ gekoppelt.
+      Die Vererbung wird quasi ausgesetzt.
     
-      Und das ist spannend: Denn man kann zur Laufzeit neue ClassLoader zwischen den
-      Modulen einziehen und wieder entfernen. So entsteht eine Art dynamischer
-      Baukasten für Server und Module -- flexibel, minimalistisch und mächtig.
+      Und das ist spannend!
+      
+      Denn du kannst zur Laufzeit neue ClassLoader zwischen den Modulen einfügen und entfernen. 
+      Das ist wie eine Art dynamischer Baukasten für Server und Module.
+      Aber alles sehr minimalistisch.
+      Was das sehr flexibel und mächtig machen muss.
     prompt:
+
+---
 
   - speaker: tom
     offset:
     text: |
-      Das erinnert mich stark an OSGi -- dieselbe Idee von modularen, dynamisch
-      ladbaren Komponenten, aber hier auf das Wesentliche reduziert. Ehrlich gesagt
-      überrascht mich das nicht. Die Grundprinzipien dahinter gibt es seit den 70ern.
+      Das erinnert mich stark an OSGi.
+      Dieselbe Idee von modularen, dynamisch ladbaren Komponenten -- aber hier auf das Wesentliche reduziert.
       
-      Smalltalk Images, modulare Betriebssysteme, austauschbare Komponenten zur
-      Laufzeit.
+      Ehrlich gesagt überrascht mich das nicht.
+      Die Grundprinzipien dahinter gibt es seit den 70ern.
       
-      Java hat das später mit ClassLoadern formalisiert.
+      Smalltalk-Images -- modulare Betriebssysteme -- austauschbare Komponenten zur Laufzeit.
       
-      OSGi hat es standardisiert.
+      Java hat das später mit ClassLoadern formalisiert und OSGi hat es dann standardisiert.
       
-      Aber das Konzept selbst ist also viel älter. Vielleicht ist das auch mal ein
-      Thema für einen eigenen Podcast, denn die Parallelen zwischen Smalltalk und
-      Java sind spannender, als viele erwarten würden.
+      Aber das Konzept selbst -- ist viel älter.
       
+      Vielleicht ein Thema für einen eigenen Podcast.
+      Die Parallelen zwischen Smalltalk und Java sind spannender, als viele erwarten würden.
+       
       Aber zurück zu deinen Zweifeln an der Feature-Liste.
     prompt:
 
   - speaker: cleo
     offset:
     text: |
-      Kurz gesagt -- es ist alles implementiert -- und in dem wenigen Code gibt es
-      wirklich so viele interessante Ansätze zu entdecken.
+      Kurz gesagt -- Es ist alles implementiert.
+      Und in dem wenigen Code gibt es wirklich viele interessante Ansätze zu entdecken.
       
       Lass uns aber beim Minimalismus bleiben.
       
-      Was mir aufgefallen ist -- es wird viel Vertrauen in die reine Java-API
-      gesteckt.
+      Was mir aufgefallen ist: Das Vertrauen in die eigene Entwicklung und die reine Java-API.
       
-      Wenn ich ehrlich bin, unterschätzen wir das heute -- delegieren unsere
-      Verantwortung teils reflexartig in Pattern und Frameworks -- abstrahieren
-      vermutlich zu schnell. Und ich muss gestehen -- man kann sich an den
-      Minimalismus und die Leichtigkeit gewöhnen -- ohne den radikalen Ansatz
-      nachahmen zu wollen -- hat das für mich die reine Java-API wieder interessanter
-      gemacht -- auch was die älteren Bestandteile betrifft.
+      Wenn ich ehrlich bin -- vernachlässigen wir das heute.
+      Delegieren unsere Verantwortung teils reflexartig in Pattern und Frameworks.
+      Abstrahieren vermutlich zu schnell.
+      Und ich muss gestehen; man kann sich an den Minimalismus und die Leichtigkeit gewöhnen.
+      Ohne den radikalen Ansatz nachahmen zu wollen -- hat das für mich die reine Java-API wieder interessanter gemacht.
+      Auch was die älteren Bestandteile betrifft.
       
-      Denn vieles was wir als altmodisch betrachten, kann reale Probleme auf eine
-      sehr elegante und leichtgewichtige Art lösen.
+      Vieles was wir heute als altmodisch betrachten, kann reale Probleme auf eine sehr elegante und leichtgewichtige Art lösen.
     prompt:
 
   - speaker: tom
@@ -299,68 +328,63 @@ segments:
   - speaker: cleo
     offset:
     text: |
-      Was die Größe vom Binary angeht, war ich aber immer noch skeptisch.
+      Was die Grösse vom Binary angeht -- war ich aber immer noch skeptisch.
       
-      Das Release selbst war nämlich schon viermal so groß.
+      Das Release selbst war nämlich schon viermal so gross.
       
-      Und nach dem Entpacken? Tatsächlich nur eine 30-kB-Binary, dazu Startskripte
-      für Windows und Linux -- Konfigurationsdatei und ein Keystore für Zertifikate.
-      
-      Der Rest der Größe kam einfach von der Dokumentation.
-    
+      Und nach dem Entpacken?
+      Tatsächlich nur eine 30 Kilobyte Binary -- Start-Skripte -- Konfigurationsdatei und ein Keystore für Zertifikate -- Templates -- das wars.
+                  
+      Die Grösse kam einfach von der Dokumentation.
       Und selbst da: Minimalismus first -- alles in Markdown.
     
       Ach ja.
-      
       Warum ich eingangs von radikalem Minimalismus gesprochen habe.
-      
       Das "radikale" wurde mir eigentlich erst beim Build-Prozess klar.
-      
-      Dafür wird Apache Ant verwendet -- für die 2000er fast ein Quasistandard.
+      Dafür wird Apache Ant verwendet -- für die 2000er ein Quasi-Standard.
     
-      Spannend ist aber ein Detail: Statt der üblichen Zip-Funktionalität aus Java
-      wird eine recht alte Seven-Zip-Implementierung genutzt, weil sie auffallend
-      kleine Zip- und damit auch Jar-Dateien erzeugt.
+      Spannend ist aber ein Detail: Statt der üblichen Zip-Funktionalität aus Java,
+      wird eine recht alte Seven-Zip-Implementierung genutzt,
+      weil sie auffallend kleine Zip- und damit auch Jar-Dateien erzeugt.
     prompt:
 
   - speaker: tom
     offset:
     text: |
-      So beachtenswert das auch alles ist, zeigt sich mir auch so ein bisschen die
-      Schattenseite von der Entwicklung mit Constraints -- ich hatte das zu Beginn
-      auch als treibende Kraft für unkonventionelle Ansätze bezeichnet, das auch
-      Innovationen sein können. Dem gegenüber steht aber ein hoher Aufwand wenn das
-      Projekt die Grenzen der Constraints erreicht.
+      So beachtenswert das auch alles ist -- für mich zeigt das auch ein bisschen die Schattenseite.
+      Denn die Entwicklung mit Constraints:
+      Ich hatte das zu Beginn auch als treibende Kraft für unkonventionelle Ansätze bezeichnet,
+      das auch Innovationen sein können.
+      Dem gegenüber steht aber ein hoher Aufwand,
+      wenn das Projekt die Grenzen der Constraints erreicht.
       
-      Scheinbar ist das auch in diesem Projekt so.
+      Scheinbar auch in diesem Projekt.
     
-      Die Folge ist: Für jede Erweiterung, sogar für jeden Bug-Fix muss in dieser
-      Situation erst Platz geschaffen werden. Folglich muss bei jedem
-      Entwicklungszyklus die bisherige Lösung in Frage gestellt werden. Wie gesagt,
-      das kann innovativ sein, kostet aber sehr viel Zeit und verlangt sehr viel
-      Disziplin.
+      Die Folge ist: Für jede Erweiterung -- sogar für jeden Bug-Fix muss erst Platz geschaffen werden.
+      Folglich muss bei jedem Entwicklungszyklus die bisherige Lösung in Frage gestellt werden.
+      Wie gesagt -- das kann innovativ sein.
+      Kostet aber sehr viel Zeit und verlangt sehr viel Disziplin.
       
-      Und Simon -- auch wenn Du es hier nicht erwähnt hast, weiss ich -- da wir den
-      Podcast ja zusammen entworfen haben -- dass, das Projekt eine Testabdeckung von
-      über 90% hat. Ich denke, das ist auch ein Tribut für Constraints.
+      Und Cleo: Auch wenn Du es bisher nicht erwähnt hast -- weiss ich -- da wir den Podcast ja zusammen entworfen haben -- dass das Projekt eine Testabdeckung von über 90% hat.
+      Ich denke -- auch das ist ein Tribut für Constraints.
       
-      Ohne Frage, Minimalismus als Design- und Architektur-Entscheidung ist spannend
-      und wirkliche Ingenieurskunst -- aber ein Ansatz der heute vermutlich mehr zum
-      Nachdenken als zum Nachmachen anregen soll.
+      Ohne Frage -- Minimalismus als Design- und Architektur-Entscheidung ist spannend und wirkliche Ingenieurskunst.
+      Dennoch sollte der Ansatz heute vermutlich mehr zum Nachdenken als wie zum Nachmachen anregen.
       
-      Ich glaube, wir könnten darüber noch lange weiterreden -- aber für heute ist das
-      vielleicht ein gutes Fazit.
+      Ich glaube, wir könnten darüber noch lange weiterreden. 
+      Aber für heute ist das vielleicht ein gutes Fazit.
       
-      Aber eins wird die Zuhörer noch interessieren -- hast Du eine Diskette bekommen?
+      Was die Zuhörer aber noch interessieren wird:
+      Hast Du eine Diskette bekommen?
     prompt:
 
   - speaker: cleo
     offset:
     text: |
-      Nein, ich habe bei dem Gewinnspiel nicht mitgemacht.
-      
-      Für mich war es eher eine spannende Entdeckungsreise in ein Projekt, das wie
-      eine kleine Zeitkapsel wirkt.
+      Nein.
+      Ich habe bei dem Gewinnspiel nicht mitgemacht.
+           
+      Für mich war es eher eine spannende Entdeckungsreise in ein Projekt, das wie eine kleine Zeitkapsel wirkt.
       
       Und dafür einfach Danke an den Autor.
       
@@ -370,7 +394,7 @@ segments:
   - speaker: tom
     offset:
     text: |
-      Danke Simon für die interessanten Einblicke.
+      Danke Cleo für die interessanten Einblicke.
       
       Ich denke, dieser Podcast war unser Anfang -- es wird weitere Folgen geben.
       Bleibt also gespannt!

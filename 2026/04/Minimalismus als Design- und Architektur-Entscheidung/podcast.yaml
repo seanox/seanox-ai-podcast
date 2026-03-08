@@ -4,7 +4,8 @@ speakers:
     name: Thomas (Tom) Buchwald
     gender: männlich
     age: 55
-    type: Erfahrener Redakteur bei einem Computermagazin
+    type:
+      - Erfahrener Redakteur bei einem Computermagazin
     education:
       - Wirtschaftsinformatik / Medieninformatik
       - Journalistik / Kommunikationswissenschaft
@@ -14,9 +15,9 @@ speakers:
       - rational denkend
       - offen für andere Ansichten aber nicht gutgläubig
       - hinterfragt
-  clara:
+  cleo:
     language: de-DE
-    name: Carla TODO
+    name: Claire (Cleo) Renard
     gender: weiblich
     age: 30-35
     type:
@@ -35,6 +36,7 @@ speakers:
 
 segments:
   - speaker: tom
+    offset:
     text: |
       Willkommen zu unserem allerersten Podcast!
 
@@ -45,74 +47,96 @@ segments:
       Wir sind
     prompt:
 
-  - speaker: clara
-    text: Clara
+  - speaker: cleo
+    offset:
+    text: Cleo
     prompt:
 
   - speaker: tom
+    offset:
     text: |
       Und Tom :-)
 
-      Worum geht es heute?
+      Worum es heute geht?
       
-      Vor ein paar Wochen bekam ich von einem Kollegen einen kurzen Auszug aus einem
-      Change-Log -- mit dem Verweis, dass zum 25-jährigen Jubiläum zehn 3 1/2 Zoll
-      Disketten verlost werden -- darunter ein Link.
+      Vor ein paar Wochen bekam ich von einem Kollegen einen Link zu einem
+      Gewinnspiel -- bei dem 3n halb Zoll Disketten verlost werden -- das
+      Projekt dahinter wird nämlich 25 Jahre alt.
       
-      Für mich war das mehr eine Randnotiz, die mich erstmal nicht weiter
-      interessierte; ich schmunzelte aber über die Diskette und fragte mich halb im
-      Scherz, ob Windows 11 noch Disketten-Laufwerke unterstützt -- die Verlosung war
-      jedenfalls ein netter Gag -- der bei mir hängen blieb.
+      Schöner -- netter -- Gag :-) Bei der Diskette musste ich automatisch
+      schmunzeln. Und ich habe mich tatsächlich gefragt, ob Windows 11 noch
+      Diskettenlaufwerke unterstützt.
       
-      Beim Mittag erwähnte ich die Sache gegenüber meiner Kollegin Simon.
+      Nebenbei: Ja, tut es.
+  
+      Jedenfalls die Diskette blieb hängen -- und beim Mittagessen erwähnte ich
+      die Sache gegenüber meiner lieben Kollegin Leo.
       
-      Zuerst hast Du dich gewundert und dann... aber erzähle mal selbst :-)
+      Ich weiss gar nicht, ob Du noch mit Disketten zu tun hattest?
+      
+      Jedenfalls warst du ziemlich verwundert ... aber erzähle mal selbst :-)
     prompt:
 
-  - speaker: clara
+  - speaker: cleo
+    offset:
     text: |
-      Ja -- die Diskette hatte mich wirklich neugierig gemacht.
+      Ja -- die Diskette hat mich wirklich neugierig gemacht.
       
-      Wer kommt heute noch auf die Idee Disketten zu verlosen.
+      Aber mehr: Wer kommt heutzutage noch auf die Idee, Disketten zu verlosen?
       
-      Ich dachte an Retro-Software -- eventuell ein Spiel -- warum sollte man
-      Software sonst so lange pflegen.
+      Ich dachte an Retro-Software -- vielleicht ein altes Spiel.
+      Warum sollte man Software sonst so lange pflegen?
       
-      Die URL ist ein Repository auf GitHub -- ein Projekt einer experimentellen
-      Server-Engine -- ein modularer Web-Server -- das hatte ich nicht erwartet!
+      Jedenfalls -- die URL gehört zu einem Repository auf GitHub -- ein Projekt
+      für eine experimentelle Server-Engine -- ein modularer Web-Server.
       
-      Einleitend wird darauf hingewiesen, dass das Binary auf 30kB begrenzt ist, weil
-      sich der Autor über 25 Jahre die Frage stellt: Warum sind Web-Server so gross?
-      Okay, das ist eine Spassfrage -- aber irgendwie skurril, denn Feature-Liste und
-      Grösse -- das passte für mich nicht zusammen.
-  
-      Das Repository selbst verschweigt sein Alter nicht -- Maven und Gradle sucht
-      man hier vergeblich. Es wirkt aufgeräumt, die Quellen sind direkt zugänglich.
-  
-      8 Java-Dateien?
-  
-      Ich vermisste weitere Packages oder Libraries, Dependencies -- aber da war
-      nichts :-)
-  
-      Die Server-Klasse stand relativ mittig -- da sie mir ins Auge fiel, öffnete ich
-      diese gespannt. Der erste Eindruck -- ich musste schmunzeln -- Enumeration,
-      Vector, Runable -- also so richtig schön aus den 2000er Jahren -- also Java
-      Version 1.4 oder 1.5 -- 255 Zeilen, viele Kommentare, alles sehr
-      überschaubar -- grosse Erwartungen hatte ich nicht.
-  
-      Ein universeller ServerSocket der auch SSL kann -- dann wurde es aber
-      interessant. Ein sich selbst regulierender Worker-Pool mit Backlog-Funktion zum
-      Zurückstellen von Anfragen -- in wenigen Zeilen, ohne Abstraktion, ohne moderne
-      und externe Frameworks?
-  
-      Auch die anderen Klassen -- Service und Worker -- da sah es ähnlich aus.
-  
-      Und da glaubt ich so langsam zu verstehen, was das mit den 30kB Limit und der
-      Spassfrage auf sich hat -- Radikaler Minimalismus als Design- und Architektur-
-      Entscheidung.
+      Und damit hatte ich wirklich nicht gerechnet!
+
+      Aber es wurde noch skurriler -- da Eingangs gleich darauf hingewiesen wird,
+      dass das Binary auf nur 30 Kilobyte begrenzt ist. Der Entwickler stellt
+      zwar klar, dass es eine 25 Jahre alte Spassfrage ist -- Warum Web-Server
+      so gross sind?
+      
+      Aber 30 Kilobyte?
+      
+      Für mich wollte das mit der Feature-Liste einfach nicht zusammenpassen.
+      
+      Das Repository macht einen sehr aufgeräumten Eindruck -- aus seinem Alter
+      macht es kein Geheimnis. Maven oder Gradle? Findet man hier nicht.
+
+      Die Quellen sind direkt zugänglich.
+      Aber ... 8 Java-Dateien?
+      Ich suchte weitere Packages -- Libraries -- Dependencies...
+      Nur da war nichts :-)
+      
+      Die Server-Klasse stand ziemlich mittig und fiel mir vermutlich thematisch
+      auf. Da musste ich einfach mal reinschauen...
+      
+      Der erste Eindruck -- ehrlich? -- ich musste schmunzeln -- Enumeration,
+      Vector, Runable -- also so richtig schön aus den 2000er Jahren -- also
+      Java Version 1.4 oder 1.5 -- 255 Zeilen, viele Kommentare, alles sehr
+      überschaubar.
+      
+      Also... wirklich grosse Erwartungen hatte ich da nicht.
+      
+      Ja -- ein universeller ServerSocket der auch SSL kann...
+      
+      Aber dann wurde es interessanter.
+      
+      Ein sich selbst regulierender Worker-Pool -- mit Backlog-Funktion -- zum
+      Zurückstellen von Anfragen -- in wenigen Zeilen -- ohne Abstraktion --
+      ohne moderne und externe Frameworks?
+      
+      Und die anderen Klassen?
+      Service, Worker ... da sah es ähnlich aus.
+      
+      Ab da glaubte ich so langsam zu verstehen, was das mit den 30kB Limit und
+      der Spassfrage auf sich hat -- Radikaler Minimalismus als Design- und
+      Architektur-Entscheidung.      
     prompt:
 
   - speaker: tom
+    offset:
     text: |
       Das ist spannend! Denn Constraints in der Softwareentwicklung waren früher ein
       echtes Thema -- heute kaum noch relevant, war es früher nicht nur Argumentation
@@ -120,7 +144,8 @@ segments:
       Umsetzung.
     prompt:
 
-  - speaker: clara
+  - speaker: cleo
+    offset:
     text: |
       Ja und Unkonventionelles findet man viel :-)
       
@@ -135,13 +160,15 @@ segments:
     prompt:
 
   - speaker: tom
+    offset:
     text: |
       Das klingt ein bisschen nach C Style :-)
       
       Und du erwähntest eigenes Decoding? Auch für UTF-8?
     prompt:
 
-  - speaker: clara
+  - speaker: cleo
+    offset:
     text: |
       Ja, auch UTF-8. Zuerst hat mich das verwundert, da es die VM mitbringt.
       
@@ -151,10 +178,12 @@ segments:
     prompt:
 
   - speaker: tom
+    offset:
     text: Und dann kam was, wo ich weiss, dass Du es nie gerne tust.
     prompt:
 
-  - speaker: clara
+  - speaker: cleo
+    offset:
     text: |
       Ja -- ich habe mir die Doku vorgenommen.
       
@@ -162,10 +191,12 @@ segments:
     prompt:
 
   - speaker: tom
+    offset:
     text: Nein :-)
     prompt:
 
-  - speaker: clara
+  - speaker: cleo
+    offset:
     text: |
       Das dachte ich mir :-) Die Doku fängt mit Installation und Konfiguration an -- alles
       in einer ini-Datei -- fein. Die Datei hatte ich schon gesehen, aber nicht geöffnet.
@@ -176,10 +207,12 @@ segments:
     prompt:
 
   - speaker: tom
+    offset:
     text: Also eine kleine, spezialisierte Sprache nur für die Konfiguration?
     prompt:
 
-  - speaker: clara
+  - speaker: cleo
+    offset:
     text: |
       Genau :-)
       
@@ -194,10 +227,12 @@ segments:
     prompt:
 
   - speaker: tom
+    offset:
     text: Wenn du mich so fragst -- nicht das, was ich erwarten würde :-) Dann erzähl mal...
     prompt:
 
-  - speaker: clara
+  - speaker: cleo
+    offset:
     text: |
       Ich weiss: Hot-Swap -- das kennst Du. Man kann über einen eigenen ClassLoader
       Module zur Laufzeit laden und entladen.
@@ -214,6 +249,7 @@ segments:
     prompt:
 
   - speaker: tom
+    offset:
     text: |
       Das erinnert mich stark an OSGi -- dieselbe Idee von modularen, dynamisch
       ladbaren Komponenten, aber hier auf das Wesentliche reduziert. Ehrlich gesagt
@@ -233,7 +269,8 @@ segments:
       Aber zurück zu deinen Zweifeln an der Feature-Liste.
     prompt:
 
-  - speaker: clara
+  - speaker: cleo
+    offset:
     text: |
       Kurz gesagt -- es ist alles implementiert -- und in dem wenigen Code gibt es
       wirklich so viele interessante Ansätze zu entdecken.
@@ -255,10 +292,12 @@ segments:
     prompt:
 
   - speaker: tom
+    offset:
     text: Schöne Selbstreflexion :-)
     prompt:
 
-  - speaker: clara
+  - speaker: cleo
+    offset:
     text: |
       Was die Größe vom Binary angeht, war ich aber immer noch skeptisch.
       
@@ -285,6 +324,7 @@ segments:
     prompt:
 
   - speaker: tom
+    offset:
     text: |
       So beachtenswert das auch alles ist, zeigt sich mir auch so ein bisschen die
       Schattenseite von der Entwicklung mit Constraints -- ich hatte das zu Beginn
@@ -314,7 +354,8 @@ segments:
       Aber eins wird die Zuhörer noch interessieren -- hast Du eine Diskette bekommen?
     prompt:
 
-  - speaker: clara
+  - speaker: cleo
+    offset:
     text: |
       Nein, ich habe bei dem Gewinnspiel nicht mitgemacht.
       
@@ -327,6 +368,7 @@ segments:
     prompt:
 
   - speaker: tom
+    offset:
     text: |
       Danke Simon für die interessanten Einblicke.
       

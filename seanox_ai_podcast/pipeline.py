@@ -16,8 +16,11 @@
 # - Create the output directory if it does not exist
 #   - If not specified, output = input directory
 # - Create map with hashes for all segments (all fields)
-#   The hashing concept is intended to simplify moving without having to
-#   recreate segments or juggle IDs.
+#   - The hashing concept is intended to simplify moving without having to
+#     recreate segments or juggle IDs.
+#   - Protection against hash collisions by combining the checksum.
+#   - TODO: Permanent validation due to hash collision?
+#     Error message/warning/do nothing?
 # - Clean up sound fragments if there is no matching hash in YAML
 # - Generate sound fragments (wav format only)
 #   - Create a system prompt from speaker info + segment prompt

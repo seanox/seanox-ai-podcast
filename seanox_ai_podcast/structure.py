@@ -53,6 +53,21 @@ class Audio(HashableStruct):
 class Speaker(HashableStruct):
     def __init__(self, name: str, language: str, voice: str, gender: str, age: str,
                  characters: [str], education: [str], personality: [str]):
+
+        if not str(name).strip():
+            raise ValueError("speaker.name is required")
+        if not str(language).strip():
+            raise ValueError("speaker.language is required")
+        if not str(voice).strip():
+            raise ValueError("speaker.voice is required")
+
+        if characters is not None and not isinstance(characters, list):
+            raise TypeError("speaker.characters must be a list")
+        if education is not None and not isinstance(education, list):
+            raise TypeError("speaker.education must be a list")
+        if personality is not None and not isinstance(personality, list):
+            raise TypeError("speaker.personality must be a list")
+
         self.name = name
         self.language = language
         self.voice = voice
@@ -64,7 +79,18 @@ class Speaker(HashableStruct):
 
 
 class Segment(HashableStruct):
-    def __init__(self, meta: str, speaker: str, offset: int, text: str, prompt: str):
+    def __init__(self, meta: str, speaker: Speaker, offset: int, text: str, prompt: str):
+
+        if not str(meta).strip():
+            raise ValueError("segment.meta is required")
+        if not speaker:
+            raise ValueError("segment.speaker is required")
+        if not str(text).strip():
+            raise ValueError("segment.text is required")
+
+        if not isinstance(offset, int):
+            raise ValueError("segment.offset must be an integer")
+
         self.meta = meta
         self.speaker = speaker
         self.offset = offset
@@ -122,7 +148,7 @@ def parser(source: str | Path) -> Podcast:
             education=meta["education"],
             personality=meta["personality"]
         )
-        speakers[name] = speaker
+        speakers[name.lower()] = speaker
 
     meta = " ".join(
         [audio.hash().lower()] +
@@ -131,10 +157,10 @@ def parser(source: str | Path) -> Podcast:
 
     segments = []
     for segment in structure.get("segments", []):
-        speaker = speakers[segment["speaker"]]
+        speaker = str(segment.get("speaker") or "").lower()
         segments.append(Segment(
             meta=meta,
-            speaker=speaker,
+            speaker=speakers[speaker],
             offset=segment["offset"],
             text=segment["text"],
             prompt=segment["prompt"]

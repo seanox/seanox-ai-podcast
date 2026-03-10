@@ -5,7 +5,7 @@ speakers:
     name: Thomas (Tom) Buchwald
     gender: männlich
     age: 55
-    type:
+    characters:
       - Erfahrener Redakteur bei einem Computermagazin
     education:
       - Wirtschaftsinformatik / Medieninformatik
@@ -22,7 +22,7 @@ speakers:
     name: Claire (Cleo) Renard
     gender: weiblich
     age: 30-35
-    type:
+    characters:
       - Erfahrende Full-Stack Entwicklerin
       - freiberufliche Redakteur beim einem Computermagazin
     education:

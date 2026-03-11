@@ -11,7 +11,6 @@ from typing import Any
 
 import yaml
 
-PATTERN_NORMALIZE_BOUNDARY_WHITESPACE = re.compile(r"(?<=\W)\s+|\s+(?=\W)")
 PATTERN_NORMALIZE_SYMBOLS = re.compile(r"[\x00-\x1F\s]+")
 PATTERN_VARIABLE_EXPRESSION = re.compile(r"\$\{([^}]+)\}")
 
@@ -21,7 +20,6 @@ class HashableStruct:
     @staticmethod
     def _normalize(value: Any) -> str:
         value = str(value or "").strip().lower()
-        value = PATTERN_NORMALIZE_BOUNDARY_WHITESPACE.sub("", value)
         value = PATTERN_NORMALIZE_SYMBOLS.sub(" ", value)
         return value
 
@@ -45,7 +43,7 @@ class HashableStruct:
             if field.hash is False:
                 continue
             value = getattr(self, field.name)
-            values.append(list(self._flatten(value)))
+            values.append(self._flatten(value))
         data = "\0".join(chain.from_iterable(values))
         return hashlib.sha512(data.encode("utf-8")).hexdigest().upper()
 
@@ -67,11 +65,11 @@ class Speaker(HashableStruct):
     personality: list[str] | None = None
 
     def __post_init__(self):
-        if not self.name.strip():
+        if not self.name or not self.name.strip():
             raise ValueError("speaker.name is required")
-        if not self.language.strip():
+        if not self.language or not self.language.strip():
             raise ValueError("speaker.language is required")
-        if not self.voice.strip():
+        if not self.voice or not self.voice.strip():
             raise ValueError("speaker.voice is required")
 
 
@@ -84,13 +82,13 @@ class Segment(HashableStruct):
     prompt: str = ""
 
     def __post_init__(self):
-        if not self.meta.strip():
+        if not self.meta or not self.meta.strip():
             raise ValueError("segment.meta is required")
         if not self.speaker:
             raise ValueError("segment.speaker is required")
-        if not self.text.strip():
+        if not self.text or not self.text.strip():
             raise ValueError("segment.text is required")
-        if not isinstance(self.offset, int):
+        if self.offset and not isinstance(self.offset, int):
             raise ValueError("segment.offset must be an integer")
 
 
@@ -181,7 +179,7 @@ def _substitute_expression_match(match: re.Match) -> str:
     return os.environ.get(expression, "")
 
 
-def parser(source: str | Path) -> Podcast:
+def parse(source: str | Path) -> Podcast:
 
     if isinstance(source, Path):
         with open(source, 'r', encoding='utf-8') as file:
@@ -195,7 +193,7 @@ def parser(source: str | Path) -> Podcast:
     speakers = {}
     for name, meta in structure.get("speakers", {}).items():
         speaker = Speaker(
-            name=name,
+            name=meta["name"],
             language=meta["language"],
             voice=meta["voice"],
             gender=meta["gender"],
@@ -207,8 +205,8 @@ def parser(source: str | Path) -> Podcast:
         speakers[name.lower()] = speaker
 
     meta = " ".join(
-        [audio.hash().lower()] +
-        [speakers[name].hash().lower() for name in sorted(speakers)]
+        [audio.hash()] +
+        [speakers[name.lower()].hash() for name in sorted(speakers)]
     )
 
     segments = []

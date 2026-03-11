@@ -1,11 +1,14 @@
 # seanox_ai_podcast/pipeline.py
 
-from pathlib import Path
+import re
 
+from pathlib import Path
 from seanox_ai_podcast import structure
 
+PATTERN_SEGMENT_WAV_FILE = re.compile(r"^0x([0-9a-fA-F]{32})+\.wav$")
 
-def pipeline(source: str | Path, output: str | Path = None) -> None:
+
+def pipeline(source: str | Path, output: str | Path = None, verbose: bool = True) -> None:
 
     if not source or not str(source).strip():
         raise ValueError("source is required")
@@ -21,20 +24,42 @@ def pipeline(source: str | Path, output: str | Path = None) -> None:
     else:
         output = source.parent.resolve()
 
+    if verbose:
+        print(f"Parsing {source}")
     podcast = structure.parse(source)
 
-    # TODO
-
     if not output.exists():
+        if verbose:
+            print(f"Creating output directory {output}")
         output.mkdir(exist_ok=True)
 
     # Irrelevant segments are cleaned up.
     # Irrelevant means all existing segments that do not match any of the
     # current segments based on their hash values.
+    if verbose:
+        print("Cleaning up obsolete segments")
     segments = [segment.hash() for segment in podcast.segments]
-    for file in output.glob("*.segment"):
+    for file in output.glob("*.wav"):
+        if not PATTERN_SEGMENT_WAV_FILE.match(file.stem):
+            continue
         if file.stem not in segments:
             file.unlink()
+
+    if verbose:
+        print("Creating new segments")
+    for segment in podcast.segments:
+        file = output / f"0x{segment.hash()}.wav"
+        if file.is_file():
+            continue
+        _create_segment_wav(file, segment)
+
+    target = source.with_suffix(".wav")
+    if verbose:
+        print(f"Mixing and cutting {target}")
+    _mix_podcast_wav(output, target, podcast)
+
+    if verbose:
+        print("Done")
 
 # Abstract
 # - Creation of a podcast (wav only) via TTS API
@@ -62,8 +87,8 @@ def pipeline(source: str | Path, output: str | Path = None) -> None:
 # x Clean up sound fragments if there is no matching hash in YAML
 # - Generate sound fragments (wav format only)
 #   - Create a system prompt from speaker info + segment prompt
-#   - For all segments for which no sound fragment exists for their hash
-#   - Use the hash from the YAML segment as the name
+#   x For all segments for which no sound fragment exists for their hash
+#   x Use the hash from the YAML segment as the name
 # - Mix the sound fragments according to their position in YAML into an output wav
 #   - take into account the "offset" which can be positive or negative
 #

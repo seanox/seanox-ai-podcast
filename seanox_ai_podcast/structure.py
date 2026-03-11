@@ -100,6 +100,14 @@ class Segment(HashableStruct):
 
 class Podcast(HashableStruct):
     def __init__(self, audio: Audio, speakers: dict, segments: [Segment]):
+
+        if not audio:
+            raise ValueError("audio is required")
+        if not speakers:
+            raise ValueError("speakers is required")
+        if not segments:
+            raise ValueError("segments are required")
+
         self.audio = audio
         self.speakers = speakers
         self.segments = segments

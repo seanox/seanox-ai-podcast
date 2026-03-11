@@ -122,8 +122,8 @@ def _substitute_expression_match(match: re.Match) -> str:
     - ${VAR-default} -> value of VAR if set, otherwise default
 
     Required value
-    - ${VAR:?error} -> value of VAR if set and non-empty, otherwise raise ValueError with error
-    - ${VAR?error} -> value of VAR if set, otherwise raise ValueError with error
+    - ${VAR:?error} -> value of VAR if set and non-empty, otherwise raise an error
+    - ${VAR?error} -> value of VAR if set, otherwise raise an error
 
     Alternative value
     - ${VAR:+replacement} -> replacement if VAR is set and non-empty, otherwise empty
@@ -131,23 +131,27 @@ def _substitute_expression_match(match: re.Match) -> str:
 
     Notes
     - No nesting inside the expression is supported.
-    - "set" means the key exists in os.environ (value is not None).
-    - "non-empty" means the environment value is not the empty string.
+    - "set" means the key exists as environment variable (value is not None).
+    - "non-empty" means the value of the environment variable is not an empty string.
     - For error forms the provided message is used as the ValueError message.
     """
 
     expression = match.group(1)
 
+    # Default if unset or empty: ${KEY:-default}
     if ":-" in expression:
         key, default = expression.split(":-", 1)
         value = os.environ.get(key)
-        return default if value is None or value == "" else value
+        return value if value not in (None, "") else default
 
+    # Default if unset: ${KEY-default}
     if "-" in expression:
         key, default = expression.split("-", 1)
-        value = os.environ.get(key)
-        return default if value is None else value
+        if key in os.environ:
+            return os.environ[key]
+        return default
 
+    # Required value: ${KEY:?error}
     if ":?" in expression:
         key, message = expression.split(":?", 1)
         value = os.environ.get(key)
@@ -155,26 +159,25 @@ def _substitute_expression_match(match: re.Match) -> str:
             raise ValueError(message)
         return value
 
+    # Required value (empty allowed): ${KEY?error}
     if "?" in expression:
         key, message = expression.split("?", 1)
-        value = os.environ.get(key)
-        if value is None:
+        if key not in os.environ:
             raise ValueError(message)
-        return value
+        return os.environ[key]
 
-    if ":+ " in expression:
-        pass
-
+    # Alternative if set and non-empty: ${KEY:+replacement}
     if ":+" in expression:
         key, replacement = expression.split(":+", 1)
         value = os.environ.get(key)
-        return replacement if value is not None and value != "" else ""
+        return replacement if value not in (None, "") else ""
 
+    # Alternative if set (empty allowed): ${KEY+replacement}
     if "+" in expression:
         key, replacement = expression.split("+", 1)
-        value = os.environ.get(key)
-        return replacement if value is not None else ""
+        return replacement if key in os.environ else ""
 
+    # Simple substitution: ${KEY}
     return os.environ.get(expression, "")
 
 

@@ -1,65 +1,83 @@
 # seanox_ai_podcast/pipeline.py
-
+import logging
 import re
 
 from pathlib import Path
+
 from seanox_ai_podcast import structure
 
-PATTERN_SEGMENT_WAV_FILE = re.compile(r"^0x([0-9a-fA-F]{32})+\.wav$")
+LOGGING = logging.getLogger(__name__)
+LOGGING.addHandler(logging.NullHandler())
+
+PATTERN_SEGMENT_WAV_FILE = re.compile(r"^0x((?:[0-9a-fA-F]{32})+)\.wav$")
 
 
-def pipeline(source: str | Path, output: str | Path = None, verbose: bool = True) -> None:
+def _create_segment_wav(segment: structure.Segment, workspace: Path):
+    output = Path(workspace, f"0x{segment.hash()}.wav")
+    output.touch(exist_ok=True)
+    print(output)
+
+
+def _mix_podcast_wav(podcast: structure.Podcast, workspace: Path, target: Path):
+    pass
+
+
+def pipeline(source: str | Path, workspace: str | Path = None) -> None:
+
+    LOGGING.info(f"Podcast as Code [Version 0.0.0 00000000]")
+    LOGGING.info(f"Copyright (C) 0000 Seanox Software Solutions")
 
     if not source or not str(source).strip():
-        raise ValueError("source is required")
-    source = Path(source) if not isinstance(source, Path) else source
+        raise ValueError("Source is required")
+    source = Path(source)
     if not source.exists() or not source.is_file():
-        raise ValueError(f"{source} must be a file")
+        raise ValueError(f"Source {source} must be a file")
 
-    if output is not None and not str(output).strip():
-        if not isinstance(output, Path):
-            output = Path(output)
-    if output.exists() and not output.is_dir():
-        raise ValueError(f"{output} must be a directory")
-    else:
-        output = source.parent.resolve()
+    if not workspace or not str(workspace).strip():
+        workspace = source.parent
+    workspace = Path(workspace)
+    if workspace.exists() and not workspace.is_dir():
+        raise ValueError(f"Workspace {workspace} must be a directory")
 
-    if verbose:
-        print(f"Parsing {source}")
+    LOGGING.info(f"Parsing {source}")
     podcast = structure.parse(source)
 
-    if not output.exists():
-        if verbose:
-            print(f"Creating output directory {output}")
-        output.mkdir(exist_ok=True)
+    if not workspace.exists():
+        LOGGING.info(f"Creating workspace directory {workspace}")
+        workspace.mkdir(exist_ok=True)
 
     # Irrelevant segments are cleaned up.
     # Irrelevant means all existing segments that do not match any of the
     # current segments based on their hash values.
-    if verbose:
-        print("Cleaning up obsolete segments")
+    LOGGING.info("Cleaning up obsolete segments")
     segments = [segment.hash() for segment in podcast.segments]
-    for file in output.glob("*.wav"):
-        if not PATTERN_SEGMENT_WAV_FILE.match(file.stem):
-            continue
-        if file.stem not in segments:
+    for file in workspace.glob("*.wav"):
+        match = PATTERN_SEGMENT_WAV_FILE.match(file.name)
+        if match and match.group(1) not in segments:
             file.unlink()
 
-    if verbose:
-        print("Creating new segments")
+    LOGGING.info("Creating new segments")
     for segment in podcast.segments:
-        file = output / f"0x{segment.hash()}.wav"
-        if file.is_file():
+        file = workspace / f"0x{segment.hash()}.wav"
+        if file.exists():
             continue
-        _create_segment_wav(file, segment)
+        _create_segment_wav(segment, workspace)
 
     target = source.with_suffix(".wav")
-    if verbose:
-        print(f"Mixing and cutting {target}")
-    _mix_podcast_wav(podcast, output, target)
+    LOGGING.info(f"Mixing and cutting {target}")
+    _mix_podcast_wav(podcast, workspace, target)
 
-    if verbose:
-        print("Done")
+    LOGGING.info("Done")
+
+# --- --- ---
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+pipeline("../examples/Minimalismus als Design- und Architektur-Entscheidung/podcast.yaml")
 
 # Abstract
 # - Creation of a podcast (wav only) via TTS API

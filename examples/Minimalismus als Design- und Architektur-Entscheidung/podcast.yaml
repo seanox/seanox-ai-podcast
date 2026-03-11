@@ -1,3 +1,13 @@
+audio:
+  api:
+    url: https://texttospeech.googleapis.com/v1/text:synthesize
+    header:
+      x-goog-user-project: "${project_id}"
+      Authorization: "Bearer ${token}"
+      Content-Type: "application/json"
+    body: |
+      {... {{placeholder}} ...}
+
 speakers:
   tom:
     language: de-DE

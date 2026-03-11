@@ -56,7 +56,7 @@ def pipeline(source: str | Path, output: str | Path = None, verbose: bool = True
     target = source.with_suffix(".wav")
     if verbose:
         print(f"Mixing and cutting {target}")
-    _mix_podcast_wav(output, target, podcast)
+    _mix_podcast_wav(podcast, output, target)
 
     if verbose:
         print("Done")

@@ -3,13 +3,13 @@
 import hashlib
 import os
 import re
-import yaml
 
+from dataclasses import dataclass, field, fields
 from itertools import chain
 from pathlib import Path
 from typing import Any
 
-ENVIRONMENT = {key.lower(): value for key, value in os.environ.items()}
+import yaml
 
 PATTERN_NORMALIZE_BOUNDARY_WHITESPACE = re.compile(r"(?<=\W)\s+|\s+(?=\W)")
 PATTERN_NORMALIZE_SYMBOLS = re.compile(r"[\x00-\x1F\s]+")
@@ -40,97 +40,142 @@ class HashableStruct:
             yield self._normalize(value)
 
     def hash(self) -> str:
-        data = "\0".join(
-            chain.from_iterable(
-                self._flatten(value) for value in vars(self).values()))
+        values = []
+        for field in fields(self):
+            if field.hash is False:
+                continue
+            value = getattr(self, field.name)
+            values.append(list(self._flatten(value)))
+        data = "\0".join(chain.from_iterable(values))
         return hashlib.sha512(data.encode("utf-8")).hexdigest().upper()
 
 
+@dataclass
 class Audio(HashableStruct):
     pass
 
 
+@dataclass
 class Speaker(HashableStruct):
-    def __init__(self, name: str, language: str, voice: str, gender: str, age: str,
-                 characters: [str], education: [str], personality: [str]):
+    name: str
+    language: str
+    voice: str
+    gender: str
+    age: str
+    characters: list[str] | None = None
+    education: list[str] | None = None
+    personality: list[str] | None = None
 
-        if not str(name).strip():
+    def __post_init__(self):
+        if not self.name.strip():
             raise ValueError("speaker.name is required")
-        if not str(language).strip():
+        if not self.language.strip():
             raise ValueError("speaker.language is required")
-        if not str(voice).strip():
+        if not self.voice.strip():
             raise ValueError("speaker.voice is required")
 
-        if characters is not None and not isinstance(characters, list):
-            raise TypeError("speaker.characters must be a list")
-        if education is not None and not isinstance(education, list):
-            raise TypeError("speaker.education must be a list")
-        if personality is not None and not isinstance(personality, list):
-            raise TypeError("speaker.personality must be a list")
 
-        self.name = name
-        self.language = language
-        self.voice = voice
-        self.gender = gender
-        self.age = age
-        self.characters = characters
-        self.education = education
-        self.personality = personality
-
-
+@dataclass
 class Segment(HashableStruct):
-    def __init__(self, meta: str, speaker: Speaker, offset: int, text: str, prompt: str):
+    meta: str
+    speaker: Speaker
+    offset: int = field(hash=False)
+    text: str = ""
+    prompt: str = ""
 
-        if not str(meta).strip():
+    def __post_init__(self):
+        if not self.meta.strip():
             raise ValueError("segment.meta is required")
-        if not speaker:
+        if not self.speaker:
             raise ValueError("segment.speaker is required")
-        if not str(text).strip():
+        if not self.text.strip():
             raise ValueError("segment.text is required")
-
-        if not isinstance(offset, int):
+        if not isinstance(self.offset, int):
             raise ValueError("segment.offset must be an integer")
 
-        self.meta = meta
-        self.speaker = speaker
-        self.offset = offset
-        self.text = text
-        self.prompt = prompt
 
-
+@dataclass
 class Podcast(HashableStruct):
-    def __init__(self, audio: Audio, speakers: dict, segments: [Segment]):
+    audio: Audio
+    speakers: dict[str, Speaker]
+    segments: list[Segment]
 
-        if not audio:
+    def __post_init__(self):
+        if not self.audio:
             raise ValueError("audio is required")
-        if not speakers:
+        if not self.speakers:
             raise ValueError("speakers is required")
-        if not segments:
+        if not self.segments:
             raise ValueError("segments are required")
-
-        self.audio = audio
-        self.speakers = speakers
-        self.segments = segments
 
 
 def _substitute_expression_match(match: re.Match) -> str:
+    """
+    Inspired by the interpolation syntax in Docker (Compose).
+    BUT WITHOUT NESTING!
+
+    Direct substitution
+    - ${VAR} -> value of VAR
+
+    Default value
+    - ${VAR:-default} -> value of VAR if set and non-empty, otherwise default
+    - ${VAR-default} -> value of VAR if set, otherwise default
+
+    Required value
+    - ${VAR:?error} -> value of VAR if set and non-empty, otherwise raise ValueError with error
+    - ${VAR?error} -> value of VAR if set, otherwise raise ValueError with error
+
+    Alternative value
+    - ${VAR:+replacement} -> replacement if VAR is set and non-empty, otherwise empty
+    - ${VAR+replacement} -> replacement if VAR is set, otherwise empty
+
+    Notes
+    - No nesting inside the expression is supported.
+    - "set" means the key exists in os.environ (value is not None).
+    - "non-empty" means the environment value is not the empty string.
+    - For error forms the provided message is used as the ValueError message.
+    """
 
     expression = match.group(1)
 
-    # syntax: ${VAR:-default} (fallback value)
     if ":-" in expression:
         key, default = expression.split(":-", 1)
-        return ENVIRONMENT.get(key.lower(), default)
+        value = os.environ.get(key)
+        return default if value is None or value == "" else value
 
-    # syntax: ${VAR:?error} (error if variable is missing)
+    if "-" in expression:
+        key, default = expression.split("-", 1)
+        value = os.environ.get(key)
+        return default if value is None else value
+
     if ":?" in expression:
         key, message = expression.split(":?", 1)
-        if key.lower() not in ENVIRONMENT:
-            raise ValueError(f"Error: {message}")
-        return ENVIRONMENT[key.lower()]
+        value = os.environ.get(key)
+        if value is None or value == "":
+            raise ValueError(message)
+        return value
 
-    # syntax: ${VAR} (standard case)
-    return ENVIRONMENT.get(expression.lower(), "")
+    if "?" in expression:
+        key, message = expression.split("?", 1)
+        value = os.environ.get(key)
+        if value is None:
+            raise ValueError(message)
+        return value
+
+    if ":+ " in expression:
+        pass
+
+    if ":+" in expression:
+        key, replacement = expression.split(":+", 1)
+        value = os.environ.get(key)
+        return replacement if value is not None and value != "" else ""
+
+    if "+" in expression:
+        key, replacement = expression.split("+", 1)
+        value = os.environ.get(key)
+        return replacement if value is not None else ""
+
+    return os.environ.get(expression, "")
 
 
 def parser(source: str | Path) -> Podcast:

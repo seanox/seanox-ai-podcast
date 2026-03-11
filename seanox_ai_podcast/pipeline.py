@@ -1,6 +1,5 @@
 # seanox_ai_podcast/pipeline.py
 
-
 from pathlib import Path
 
 from seanox_ai_podcast import structure
@@ -20,14 +19,26 @@ def pipeline(source: str | Path, output: str | Path = None) -> None:
     if output.exists() and not output.is_dir():
         raise ValueError(f"{output} must be a directory")
     else:
-        output = None
+        output = source.parent.resolve()
 
     podcast = structure.parse(source)
 
+    # TODO
+
+    if not output.exists():
+        output.mkdir(exist_ok=True)
+
+    # Irrelevant segments are cleaned up.
+    # Irrelevant means all existing segments that do not match any of the
+    # current segments based on their hash values.
+    segments = [segment.hash() for segment in podcast.segments]
+    for file in output.glob("*.segment"):
+        if file.stem not in segments:
+            file.unlink()
 
 # Abstract
 # - Creation of a podcast (wav only) via TTS API
-# - Based on a YAML structure
+# x Based on a YAML structure
 # - Minimization of API calls
 #
 # Environment Variables
@@ -40,15 +51,15 @@ def pipeline(source: str | Path, output: str | Path = None) -> None:
 # How it works
 # x Parse YAML file into structure object
 #   x Validation + error output (YAML schema)
-# - Create the output directory if it does not exist
-#   - If not specified, output = input directory
-# - Create map with hashes for all segments (all fields)
-#   - The hashing concept is intended to simplify moving without having to
+# x Create the output directory if it does not exist
+#   x If not specified, output = input directory
+# x Create map with hashes for all segments (all fields)
+#   x The hashing concept is intended to simplify moving without having to
 #     recreate segments or juggle IDs.
-#   - Protection against hash collisions by combining the checksum.
-#   - TODO: Permanent validation due to hash collision?
+#   x Protection against hash collisions by combining the checksum.
+#   x TODO: Permanent validation due to hash collision?
 #     Error message/warning/do nothing?
-# - Clean up sound fragments if there is no matching hash in YAML
+# x Clean up sound fragments if there is no matching hash in YAML
 # - Generate sound fragments (wav format only)
 #   - Create a system prompt from speaker info + segment prompt
 #   - For all segments for which no sound fragment exists for their hash

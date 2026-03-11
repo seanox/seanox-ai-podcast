@@ -43,7 +43,7 @@ class HashableStruct:
         data = "\0".join(
             chain.from_iterable(
                 self._flatten(value) for value in vars(self).values()))
-        return hashlib.sha256(data.encode("utf-8")).hexdigest().upper()
+        return hashlib.sha512(data.encode("utf-8")).hexdigest().upper()
 
 
 class Audio(HashableStruct):

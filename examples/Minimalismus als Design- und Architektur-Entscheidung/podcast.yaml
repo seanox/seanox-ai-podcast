@@ -1,27 +1,41 @@
 audio:
   service:
-    url: https://texttospeech.googleapis.com/v1/text:synthesize
 #   proxy: http://proxy:3128
+#   timeout: 30000
+    url: https://texttospeech.googleapis.com/v1/text:synthesize
     headers:
-      x-goog-user-project: "${project_id}"
-      Authorization: "Bearer ${token}"
-      Content-Type: "application/json"
+      x-goog-user-project: "${GOOGLE_PROJECT_ID}"
+      Authorization: "Bearer ${GOOGLE_API_TOKEN}"
+      Content-Type: "application/json; charset=utf-8"
     body: |
-      {... {{placeholder}} ...}
-#   timeout: 5
+      {
+        "input": {
+          "text": "{{ segment.text }}",
+          "prompt": "{{ segment.prompt }}"
+        },
+        "voice": {
+          "languageCode": "{{ speaker.language }}",
+          "name": "{{ speaker.voice }}",
+          "ssmlGender": "{{ speaker.gender }}"
+        },
+        "audioConfig": {
+          "audioEncoding": "WAV"
+        }
+      }
 
 speakers:
   tom:
     language: de-DE
     voice: TODO
     name: Thomas (Tom) Buchwald
-    gender: männlich
+    gender: male
     age: 55
     characters:
       - Erfahrener Redakteur bei einem Computermagazin
     education:
-      - Wirtschaftsinformatik / Medieninformatik
-      - Journalistik / Kommunikationswissenschaft
+      - Informatik
+      - Journalismus
+      - Kommunikationswissenschaft
     personality:
       - ruhig
       - objektiv
@@ -32,20 +46,20 @@ speakers:
     language: de-DE
     voice: TODO
     name: Claire (Cleo) Renard
-    gender: weiblich
+    gender: female
     age: 30-35
     characters:
       - Erfahrende Full-Stack Entwicklerin
       - freiberufliche Redakteur beim einem Computermagazin
     education:
-      - Informatik / Computer Engineering
+      - Informatik
       - Kommunikationswissenschaft
     personality:
       - leicht quirlig
       - etwas lebendiger
       - mit einem Hauch von Enthusiasmus
       - immer neugierig, offen für andere Ansichten aber nicht gutgläubig
-      - hinterfragt Dinge
+      - hinterfragt
       - will den Kern von Dingen und die Zusammenhänge verstehen
 
 segments:

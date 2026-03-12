@@ -25,15 +25,15 @@ def _create_segment_wav(service: Service, segment: structure.Segment, workspace:
         timeout=service.timeout
     )
     if response.status_code != 200:
-        raise RuntimeError(f"Unexpected HTTP response: {response.status_code}")
+        raise PipelineError(f"Unexpected HTTP response: {response.status_code}")
     if not re.search(r"\baudio/wav\b", response.headers.get("Content-Type", ""), re.IGNORECASE):
-        raise RuntimeError(f"Unexpected Content-Type: {response.headers.get('Content-Type')}")
+        raise PipelineError(f"Unexpected Content-Type: {response.headers.get('Content-Type')}")
     output = Path(workspace, f"0x{segment.hash()}.wav")
     with open(output, "wb") as file:
         for index, chunk in enumerate(response.iter_content(chunk_size=8192)):
             if index <= 0:
                 if chunk[:4] != b'RIFF':
-                    raise RuntimeError("Unexpected content, file is not a WAV file")
+                    raise PipelineError("Unexpected content, file is not a WAV file")
             file.write(chunk)
 
 
@@ -89,3 +89,8 @@ def pipeline(source: str | Path, workspace: str | Path = None) -> None:
     _mix_podcast_wav(podcast, workspace, target)
 
     LOGGING.info("Done")
+
+
+class PipelineError(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)

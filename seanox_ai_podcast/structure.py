@@ -58,8 +58,7 @@ class Service(HashableStruct):
     url: str
     body: str
     headers: dict[str, str] | None = None
-
-    _proxy: str = field(default="", hash=False, repr=False)
+    proxy: str = field(default="", hash=False, repr=False)
 
     def __post_init__(self):
         if not self.url or not self.url.strip():
@@ -70,28 +69,26 @@ class Service(HashableStruct):
             raise ValueError("YAML [structure]: audio.service.body is required")
         if self.timeout and not isinstance(self.timeout, int):
             raise ValueError("YAML [structure]: audio.service.timeout must be an integer")
-        if self._proxy and self._proxy.strip():
+
+        if self.proxy and self.proxy.strip():
             try:
-                proxy = urlparse(self._proxy)
+                proxy = urlparse(self.proxy)
                 if proxy.scheme.lower() not in ("http", "https", "socks5", "socks4"):
                     raise ValueError
                 if not proxy.hostname:
                     raise ValueError
             except Exception:
-                raise ValueError("YAML [structure]: audio.service.proxy valid URL required")#
+                raise ValueError("YAML [structure]: audio.service.proxy valid URL required")
+
         self.timeout = None if not self.timeout or self.timeout <= 0 else self.timeout / 1000
         self.headers = {key: str(value) for key, value in self.headers.items()}
 
     @property
-    def proxy(self) -> dict | None:
-        if not self._proxy:
+    def proxies(self) -> dict | None:
+        if not self.proxy:
             return None
-        proxy = urlparse(self._proxy)
-        return {proxy.scheme.lower(): self._proxy}
-
-    @proxy.setter
-    def proxy(self, value: str):
-        self._proxy = value
+        proxy = urlparse(self.proxy)
+        return {proxy.scheme.lower(): self.proxy}
 
 
 @dataclass
@@ -122,6 +119,18 @@ class Speaker(HashableStruct):
         if not self.voice or not self.voice.strip():
             raise ValueError("YAML [structure]: speaker.voice is required")
 
+    @property
+    def about_me(self) -> str:
+        age = f"{self.age} years" if self.age else None
+        profile = [", ".join(filter(None, [self.name, self.language, self.gender, age])) + "."]
+        if self.characters:
+            profile.append(f"Role: {', '.join(self.characters)}.")
+        if self.personality:
+            profile.append(f"Personality: {', '.join(self.personality)}.")
+        if self.education:
+            profile.append(f"Education: {', '.join(self.education)}.")
+        return f"{os.linesep}".join(profile)
+
 
 @dataclass
 class Segment(HashableStruct):
@@ -140,6 +149,12 @@ class Segment(HashableStruct):
             raise ValueError("YAML [structure]: segment.text is required")
         if self.offset and not isinstance(self.offset, int):
             raise ValueError("YAML [structure]: segment.offset must be an integer")
+
+        self.prompt = os.linesep.join([
+            self.speaker.about_me,
+            f"Stage direction: {self.prompt}" if self.prompt else "Be natural!",
+            f"Please speak the following text as if you were {self.speaker.name} in a podcast!"
+        ])
 
 
 @dataclass

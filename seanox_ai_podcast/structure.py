@@ -49,8 +49,27 @@ class HashableStruct:
 
 
 @dataclass
+class Service(HashableStruct):
+    url: str
+    header: dict[str, str] | None = None
+    body: str = ""
+
+    def __post_init__(self):
+        if not self.url or not self.url.strip():
+            raise ValueError("YAML [structure]: audio.service.url is required")
+        if not self.header:
+            raise ValueError("YAML [structure]: audio.service.header is required")
+        if not self.body or not self.body.strip():
+            raise ValueError("YAML [structure]: audio.service.body is required")
+
+
+@dataclass
 class Audio(HashableStruct):
-    pass
+    service: Service | None = None
+
+    def __post_init__(self):
+        if not self.service:
+            raise ValueError("YAML [structure]: audio.service is required")
 
 
 @dataclass
@@ -66,11 +85,11 @@ class Speaker(HashableStruct):
 
     def __post_init__(self):
         if not self.name or not self.name.strip():
-            raise ValueError("speaker.name is required")
+            raise ValueError("YAML [structure]: speaker.name is required")
         if not self.language or not self.language.strip():
-            raise ValueError("speaker.language is required")
+            raise ValueError("YAML [structure]: speaker.language is required")
         if not self.voice or not self.voice.strip():
-            raise ValueError("speaker.voice is required")
+            raise ValueError("YAML [structure]: speaker.voice is required")
 
 
 @dataclass
@@ -83,13 +102,13 @@ class Segment(HashableStruct):
 
     def __post_init__(self):
         if not self.meta or not self.meta.strip():
-            raise ValueError("segment.meta is required")
+            raise ValueError("YAML [structure]: segment.meta is required")
         if not self.speaker:
-            raise ValueError("segment.speaker is required")
+            raise ValueError("YAML [structure]: segment.speaker is required")
         if not self.text or not self.text.strip():
-            raise ValueError("segment.text is required")
+            raise ValueError("YAML [structure]: segment.text is required")
         if self.offset and not isinstance(self.offset, int):
-            raise ValueError("segment.offset must be an integer")
+            raise ValueError("YAML [structure]: segment.offset must be an integer")
 
 
 @dataclass
@@ -100,11 +119,11 @@ class Podcast(HashableStruct):
 
     def __post_init__(self):
         if not self.audio:
-            raise ValueError("audio is required")
+            raise ValueError("YAML [structure]: audio is required")
         if not self.speakers:
-            raise ValueError("speakers is required")
+            raise ValueError("YAML [structure]: speakers is required")
         if not self.segments:
-            raise ValueError("segments are required")
+            raise ValueError("YAML [structure]: segments are required")
 
 
 def _substitute_expression_match(match: re.Match) -> str:
@@ -154,14 +173,14 @@ def _substitute_expression_match(match: re.Match) -> str:
         key, message = expression.split(":?", 1)
         value = os.environ.get(key)
         if value is None or value == "":
-            raise ValueError(message)
+            raise ValueError(f"YAML [structure]: {message}")
         return value
 
     # Required value (empty allowed): ${KEY?error}
     if "?" in expression:
         key, message = expression.split("?", 1)
         if key not in os.environ:
-            raise ValueError(message)
+            raise ValueError(f"YAML [structure]: {message}")
         return os.environ[key]
 
     # Alternative if set and non-empty: ${KEY:+replacement}
@@ -188,7 +207,14 @@ def parse(source: str | Path) -> Podcast:
 
     structure = yaml.safe_load(source)
 
-    audio = Audio()
+    service = structure.get("audio", {}).get("service", {})
+    audio = Audio(
+        service=Service(
+            url=service.get("url", ""),
+            header=service.get("header", {}),
+            body=service.get("body", "")
+        )
+    )
 
     speakers = {}
     for name, meta in structure.get("speakers", {}).items():
@@ -223,4 +249,5 @@ def parse(source: str | Path) -> Podcast:
     return Podcast(
         audio=audio,
         speakers=speakers,
-        segments=segments)
+        segments=segments
+    )

@@ -16,7 +16,6 @@ def _create_segment_wav(segment: structure.Segment, workspace: Path):
     output = Path(workspace, f"0x{segment.hash()}.wav")
     # TODO
     output.touch(exist_ok=True)
-    print(output)
 
 
 def _mix_podcast_wav(podcast: structure.Podcast, workspace: Path, target: Path):
@@ -25,7 +24,7 @@ def _mix_podcast_wav(podcast: structure.Podcast, workspace: Path, target: Path):
 
 def pipeline(source: str | Path, workspace: str | Path = None) -> None:
 
-    LOGGING.info(f"Podcast as Code [Version 0.0.0 00000000]")
+    LOGGING.info(f"Seanox Podcast as Code [Version 0.0.0 00000000]")
     LOGGING.info(f"Copyright (C) 0000 Seanox Software Solutions")
 
     if not source or not str(source).strip():
@@ -40,12 +39,12 @@ def pipeline(source: str | Path, workspace: str | Path = None) -> None:
     if workspace.exists() and not workspace.is_dir():
         raise ValueError(f"Workspace {workspace} must be a directory")
 
+    LOGGING.info(f"Workspace {workspace}")
+    if not workspace.exists():
+        workspace.mkdir(exist_ok=True)
+
     LOGGING.info(f"Parsing {source}")
     podcast = structure.parse(source)
-
-    if not workspace.exists():
-        LOGGING.info(f"Creating workspace directory {workspace}")
-        workspace.mkdir(exist_ok=True)
 
     # Irrelevant segments are cleaned up.
     # Irrelevant means all existing segments that do not match any of the
@@ -55,6 +54,7 @@ def pipeline(source: str | Path, workspace: str | Path = None) -> None:
     for file in workspace.glob("*.wav"):
         match = PATTERN_SEGMENT_WAV_FILE.match(file.name)
         if match and match.group(1) not in segments:
+            LOGGING.info(f"- {file}")
             file.unlink()
 
     LOGGING.info("Creating new segments")
@@ -62,6 +62,7 @@ def pipeline(source: str | Path, workspace: str | Path = None) -> None:
         file = workspace / f"0x{segment.hash()}.wav"
         if file.exists():
             continue
+        LOGGING.info(f"- {file}")
         _create_segment_wav(segment, workspace)
 
     target = source.with_suffix(".wav")

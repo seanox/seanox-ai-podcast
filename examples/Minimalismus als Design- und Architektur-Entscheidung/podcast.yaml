@@ -1,12 +1,14 @@
 audio:
   service:
     url: https://texttospeech.googleapis.com/v1/text:synthesize
-    header:
+#   proxy: http://proxy:3128
+    headers:
       x-goog-user-project: "${project_id}"
       Authorization: "Bearer ${token}"
       Content-Type: "application/json"
     body: |
       {... {{placeholder}} ...}
+#   timeout: 5
 
 speakers:
   tom:

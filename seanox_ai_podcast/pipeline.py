@@ -1,10 +1,14 @@
 # seanox_ai_podcast/pipeline.py
+
 import logging
 import re
+import requests
 
+from jinja2 import Template
 from pathlib import Path
 
 from seanox_ai_podcast import structure
+from seanox_ai_podcast.structure import Service
 
 LOGGING = logging.getLogger(__name__)
 LOGGING.addHandler(logging.NullHandler())
@@ -12,13 +16,28 @@ LOGGING.addHandler(logging.NullHandler())
 PATTERN_SEGMENT_WAV_FILE = re.compile(r"^0x((?:[0-9a-fA-F]{32})+)\.wav$")
 
 
-def _create_segment_wav(segment: structure.Segment, workspace: Path):
+def _create_segment_wav(service: Service, segment: structure.Segment, workspace: Path) -> None:
+    response = requests.post(
+        service.url,
+        headers=service.headers,
+        data=Template(service.body).render(speaker=segment.speaker, segment=segment),
+        proxies=service.proxy,
+        timeout=service.timeout
+    )
+    if response.status_code != 200:
+        raise RuntimeError(f"Unexpected HTTP response: {response.status_code}")
+    if not re.search(r"\baudio/wav\b", response.headers.get("Content-Type", ""), re.IGNORECASE):
+        raise RuntimeError(f"Unexpected Content-Type: {response.headers.get('Content-Type')}")
     output = Path(workspace, f"0x{segment.hash()}.wav")
-    # TODO
-    output.touch(exist_ok=True)
+    with open(output, "wb") as file:
+        for index, chunk in enumerate(response.iter_content(chunk_size=8192)):
+            if index <= 0:
+                if chunk[:4] != b'RIFF':
+                    raise RuntimeError("Unexpected content, file is not a WAV file")
+            file.write(chunk)
 
 
-def _mix_podcast_wav(podcast: structure.Podcast, workspace: Path, target: Path):
+def _mix_podcast_wav(podcast: structure.Podcast, workspace: Path, target: Path) -> None:
     pass
 
 
@@ -63,7 +82,7 @@ def pipeline(source: str | Path, workspace: str | Path = None) -> None:
         if file.exists():
             continue
         LOGGING.info(f"- {file}")
-        _create_segment_wav(segment, workspace)
+        _create_segment_wav(podcast.audio.service, segment, workspace)
 
     target = source.with_suffix(".wav")
     LOGGING.info(f"Mixing and cutting {target}")

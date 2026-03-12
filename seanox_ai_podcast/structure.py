@@ -6,6 +6,9 @@ import re
 
 from dataclasses import dataclass, field, fields
 from itertools import chain
+from urllib.parse import urlparse
+
+from jinja2 import Template
 from pathlib import Path
 from typing import Any
 
@@ -50,17 +53,45 @@ class HashableStruct:
 
 @dataclass
 class Service(HashableStruct):
+
+    timeout: int = field(hash=False)
     url: str
-    header: dict[str, str] | None = None
-    body: str = ""
+    body: str
+    headers: dict[str, str] | None = None
+
+    _proxy: str = field(default="", hash=False, repr=False)
 
     def __post_init__(self):
         if not self.url or not self.url.strip():
             raise ValueError("YAML [structure]: audio.service.url is required")
-        if not self.header:
-            raise ValueError("YAML [structure]: audio.service.header is required")
+        if not self.headers:
+            raise ValueError("YAML [structure]: audio.service.headers is required")
         if not self.body or not self.body.strip():
             raise ValueError("YAML [structure]: audio.service.body is required")
+        if self.timeout and not isinstance(self.timeout, int):
+            raise ValueError("YAML [structure]: audio.service.timeout must be an integer")
+        if self._proxy and self._proxy.strip():
+            try:
+                proxy = urlparse(self._proxy)
+                if proxy.scheme.lower() not in ("http", "https", "socks5", "socks4"):
+                    raise ValueError
+                if not proxy.hostname:
+                    raise ValueError
+            except Exception:
+                raise ValueError("YAML [structure]: audio.service.proxy valid URL required")#
+        self.timeout = None if not self.timeout or self.timeout <= 0 else self.timeout / 1000
+        self.headers = {key: str(value) for key, value in self.headers.items()}
+
+    @property
+    def proxy(self) -> dict | None:
+        if not self._proxy:
+            return None
+        proxy = urlparse(self._proxy)
+        return {proxy.scheme.lower(): self._proxy}
+
+    @proxy.setter
+    def proxy(self, value: str):
+        self._proxy = value
 
 
 @dataclass
@@ -210,23 +241,27 @@ def parse(source: str | Path) -> Podcast:
     service = structure.get("audio", {}).get("service", {})
     audio = Audio(
         service=Service(
-            url=service.get("url", ""),
-            header=service.get("header", {}),
-            body=service.get("body", "")
+            url=service.get("url"),
+            proxy=service.get("proxy"),
+            headers=service.get("headers"),
+            body=service.get("body"),
+            timeout=service.get("timeout", -1)
         )
     )
 
     speakers = {}
-    for name, meta in structure.get("speakers", {}).items():
+    for name, speaker in structure.get("speakers", {}).items():
+        if name.lower() in speakers:
+            raise ValueError(f"YAML [structure]: speakers ambiguous speaker found")
         speaker = Speaker(
-            name=meta["name"],
-            language=meta["language"],
-            voice=meta["voice"],
-            gender=meta["gender"],
-            age=meta["age"],
-            characters=meta["characters"],
-            education=meta["education"],
-            personality=meta["personality"]
+            name=speaker.get("name"),
+            language=speaker.get("language"),
+            voice=speaker.get("voice"),
+            gender=speaker.get("gender"),
+            age=speaker.get("age"),
+            characters=speaker.get("characters"),
+            education=speaker.get("education"),
+            personality=speaker.get("personality")
         )
         speakers[name.lower()] = speaker
 
@@ -237,13 +272,16 @@ def parse(source: str | Path) -> Podcast:
 
     segments = []
     for segment in structure.get("segments", []):
-        speaker = str(segment.get("speaker") or "").lower()
+        speaker = segment.get("speaker", "").lower()
+        speaker = speakers.get(speaker)
+        if not speaker:
+            raise ValueError("YAML [structure]: segment.speaker is required")
         segments.append(Segment(
             meta=meta,
-            speaker=speakers[speaker],
-            offset=segment["offset"],
-            text=segment["text"],
-            prompt=segment["prompt"]
+            speaker=speaker,
+            offset=segment.get("offset") or 0,
+            text=Template(segment.get("text")).render(speaker=speaker).strip(),
+            prompt=Template(segment.get("prompt") or "").render(speaker=speaker).strip()
         ))
 
     return Podcast(

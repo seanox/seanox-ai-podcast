@@ -27,7 +27,7 @@ speakers:
   tom:
     language: de-DE
     voice: TODO
-    name: Thomas (Tom) Buchwald
+    name: Tom (Thomas Buchwald)
     gender: male
     age: 55
     characters:
@@ -45,7 +45,7 @@ speakers:
   cleo:
     language: de-DE
     voice: TODO
-    name: Claire (Cleo) Renard
+    name: Cleo (Claire Renard)
     gender: female
     age: 30-35
     characters:

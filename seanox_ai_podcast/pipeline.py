@@ -1,5 +1,7 @@
 # seanox_ai_podcast/pipeline.py
 
+import base64
+import json
 import logging
 import re
 import requests
@@ -17,6 +19,9 @@ PATTERN_SEGMENT_WAV_FILE = re.compile(r"^0x((?:[0-9a-fA-F]{32})+)\.wav$")
 
 
 def _create_segment_wav(service: Service, segment: structure.Segment, workspace: Path) -> None:
+
+    output = Path(workspace, f"0x{segment.hash()}.wav")
+
     response = requests.post(
         service.url,
         headers=service.headers,
@@ -26,15 +31,29 @@ def _create_segment_wav(service: Service, segment: structure.Segment, workspace:
     )
     if response.status_code != 200:
         raise PipelineError(f"Unexpected HTTP response: {response.status_code}")
-    if not re.search(r"\baudio/wav\b", response.headers.get("Content-Type", ""), re.IGNORECASE):
-        raise PipelineError(f"Unexpected Content-Type: {response.headers.get('Content-Type')}")
-    output = Path(workspace, f"0x{segment.hash()}.wav")
-    with open(output, "wb") as file:
-        for index, chunk in enumerate(response.iter_content(chunk_size=8192)):
-            if index <= 0:
-                if chunk[:4] != b'RIFF':
-                    raise PipelineError("Unexpected content, file is not a WAV file")
-            file.write(chunk)
+
+    if re.search(r"\baudio/wav\b", response.headers.get("Content-Type", ""), re.IGNORECASE):
+        with open(output, "wb") as file:
+            for index, chunk in enumerate(response.iter_content(chunk_size=8192)):
+                if index <= 0:
+                    if chunk[:4] != b'RIFF':
+                        raise PipelineError("Invalid WAV response from TTS service")
+                file.write(chunk)
+        return
+
+    if re.search(r"\bapplication/json\b", response.headers.get("Content-Type", ""), re.IGNORECASE):
+        try:
+            data = response.json()
+        except json.JSONDecodeError:
+            raise PipelineError("Invalid JSON response from TTS service")
+        data = data.get("audioContent")
+        if not data:
+            raise PipelineError("Invalid JSON response from TTS service")
+        with open(output, "wb") as file:
+            file.write(base64.b64decode(data))
+        return
+
+    raise PipelineError(f"Unsupported Content-Type: {response.headers.get('Content-Type')}")
 
 
 def _mix_podcast_wav(podcast: structure.Podcast, workspace: Path, target: Path) -> None:

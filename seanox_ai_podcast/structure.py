@@ -12,18 +12,10 @@ from pathlib import Path
 from typing import Any, Callable
 from urllib.parse import urlparse
 
-from seanox_ai_podcast.modules import (
-    AbstractAudioService, GoogleGenerativeLanguageService, GoogleCloudService
-)
 from seanox_ai_podcast.modules.abstract import AudioService
 
 PATTERN_NORMALIZE_SYMBOLS = re.compile(r"[\x00-\x1F\s]+")
 PATTERN_VARIABLE_EXPRESSION = re.compile(r"\$\{([^}]+)\}")
-
-AUDIO_SERVICE_PROVIDER: dict[str, type[AbstractAudioService]] = {
-    "generativelanguage.googleapis.com": GoogleGenerativeLanguageService,
-    "texttospeech.googleapis.com": GoogleCloudService
-}
 
 
 class HashableStruct:

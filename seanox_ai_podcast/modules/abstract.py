@@ -6,6 +6,9 @@ from dataclasses import dataclass
 from requests import Response
 from typing import Callable
 
+from seanox_ai_podcast.modules import (
+    GoogleGenerativeLanguageService, GoogleCloudService
+)
 
 LOGGING = logging.getLogger(__name__)
 LOGGING.addHandler(logging.NullHandler())

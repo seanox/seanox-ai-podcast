@@ -3,19 +3,27 @@
 import hashlib
 import os
 import re
+import yaml
 
 from dataclasses import dataclass, field, fields
 from itertools import chain
-from urllib.parse import urlparse
-
 from jinja2 import Template
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
+from urllib.parse import urlparse
 
-import yaml
+from seanox_ai_podcast.modules import (
+    AbstractAudioService, GoogleGenerativeLanguageService, GoogleCloudService
+)
+from seanox_ai_podcast.modules.abstract import AudioService
 
 PATTERN_NORMALIZE_SYMBOLS = re.compile(r"[\x00-\x1F\s]+")
 PATTERN_VARIABLE_EXPRESSION = re.compile(r"\$\{([^}]+)\}")
+
+AUDIO_SERVICE_PROVIDER: dict[str, type[AbstractAudioService]] = {
+    "generativelanguage.googleapis.com": GoogleGenerativeLanguageService,
+    "texttospeech.googleapis.com": GoogleCloudService
+}
 
 
 class HashableStruct:
@@ -48,17 +56,26 @@ class HashableStruct:
             value = getattr(self, field.name)
             values.append(self._flatten(value))
         data = "\0".join(chain.from_iterable(values))
-        return hashlib.sha512(data.encode("utf-8")).hexdigest().upper()
+        return hashlib.sha256(data.encode("utf-8")).hexdigest().upper()
+
+
+@dataclass
+class Provider:
+    name: str
+    model: str
+    token: str
+    text: str
+    prompt: str
 
 
 @dataclass
 class Service(HashableStruct):
-
     timeout: int = field(hash=False)
     url: str
     body: str
     headers: dict[str, str] | None = None
     proxy: str = field(default="", hash=False, repr=False)
+    decode: Callable[[Any], bytes] | None = field(default=None, hash=False)
 
     def __post_init__(self):
         if not self.url or not self.url.strip():
@@ -253,16 +270,27 @@ def parse(source: str | Path) -> Podcast:
 
     structure = yaml.safe_load(source)
 
-    service = structure.get("audio", {}).get("service", {})
-    audio = Audio(
-        service=Service(
-            url=service.get("url"),
+    audio = structure.get("audio", {})
+    service = audio.get("service", {})
+    provider = service.get("provider", {})
+    if provider:
+        provider = AudioService(provider)
+        service = Service(
             proxy=service.get("proxy"),
-            headers=service.get("headers"),
-            body=service.get("body"),
-            timeout=service.get("timeout", -1)
+            timeout=service.get("timeout", -1),
+            url=provider.url,
+            headers=provider.headers,
+            body=provider.body
         )
-    )
+    else:
+        service = Service(
+            proxy=service.get("proxy"),
+            timeout=service.get("timeout", -1),
+            url=service.get("url"),
+            headers=service.get("headers"),
+            body=service.get("body")
+        )
+    audio = Audio(service=service)
 
     speakers = {}
     for name, speaker in structure.get("speakers", {}).items():

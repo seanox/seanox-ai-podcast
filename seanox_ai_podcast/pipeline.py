@@ -20,7 +20,7 @@ PATTERN_SEGMENT_WAV_FILE = re.compile(r"^0x((?:[0-9a-fA-F]{32})+)\.wav$")
 PATTERN_BASE64_ENCODING = re.compile(r"^[A-Za-z0-9+/=]+$")
 
 
-def _fetch_json_audio(data: Any, signature: bytes = b'RIFF') -> bytes | None:
+def _fetch_json_audio(data: Any, signature: bytes = None) -> bytes | None:
     if isinstance(data, dict):
         for value in data.values():
             result = _fetch_json_audio(value, signature)
@@ -34,8 +34,9 @@ def _fetch_json_audio(data: Any, signature: bytes = b'RIFF') -> bytes | None:
     elif isinstance(data, str):
         if PATTERN_BASE64_ENCODING.fullmatch(data):
             decoded = base64.b64decode(data, validate=True)
-            if decoded.startswith(signature):
-                return decoded
+            if signature and not decoded.startswith(signature):
+                return None
+            return decoded
     return None
 
 
@@ -57,7 +58,7 @@ def _create_segment_wav(service: Service, segment: structure.Segment, workspace:
         with open(output, "wb") as file:
             for index, chunk in enumerate(response.iter_content(chunk_size=8192)):
                 if index <= 0:
-                    if chunk[:4] != b'RIFF':
+                    if chunk[:4] != b"RIFF":
                         raise PipelineError("Invalid WAV response from TTS service")
                 file.write(chunk)
         return

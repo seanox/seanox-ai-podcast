@@ -1,14 +1,13 @@
 # seanox_ai_podcast/pipeline.py
 
 import base64
-import json
 import logging
 import re
-import requests
-
-from jinja2 import Template
 from pathlib import Path
 from typing import Any
+
+import requests
+from jinja2 import Template
 
 from seanox_ai_podcast import structure
 from seanox_ai_podcast.structure import Service
@@ -54,27 +53,11 @@ def _create_segment_wav(service: Service, segment: structure.Segment, workspace:
     if response.status_code != 200:
         raise PipelineError(f"Unexpected HTTP response: {response.status_code}")
 
-    if re.search(r"\baudio/wav\b", response.headers.get("Content-Type", ""), re.IGNORECASE):
-        with open(output, "wb") as file:
-            for index, chunk in enumerate(response.iter_content(chunk_size=8192)):
-                if index <= 0:
-                    if chunk[:4] != b"RIFF":
-                        raise PipelineError("Invalid WAV response from TTS service")
-                file.write(chunk)
-        return
-
-    if re.search(r"\bapplication/json\b", response.headers.get("Content-Type", ""), re.IGNORECASE):
-        try:
-            data = _fetch_json_audio(response.json())
-            if not data:
-                raise PipelineError("Invalid JSON response from TTS service")
-            with open(output, "wb") as file:
-                file.write(data)
-            return
-        except json.JSONDecodeError:
-            raise PipelineError("Invalid JSON response from TTS service")
-
-    raise PipelineError(f"Unsupported Content-Type: {response.headers.get('Content-Type')}")
+    data = service.decode(response)
+    if not data or data[:4] != b"RIFF":
+        raise PipelineError("Invalid WAV response from TTS service")
+    with open(output, "wb") as file:
+        file.write(data)
 
 
 def _mix_podcast_wav(podcast: structure.Podcast, workspace: Path, target: Path) -> None:

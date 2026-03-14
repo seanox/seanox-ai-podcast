@@ -3,11 +3,11 @@
 import base64
 import logging
 import re
+import requests
+
+from jinja2 import Template
 from pathlib import Path
 from typing import Any
-
-import requests
-from jinja2 import Template
 
 from seanox_ai_podcast import structure
 from seanox_ai_podcast.structure import Service

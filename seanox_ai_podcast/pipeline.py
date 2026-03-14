@@ -8,6 +8,7 @@ import requests
 
 from jinja2 import Template
 from pathlib import Path
+from typing import Any
 
 from seanox_ai_podcast import structure
 from seanox_ai_podcast.structure import Service
@@ -16,6 +17,26 @@ LOGGING = logging.getLogger(__name__)
 LOGGING.addHandler(logging.NullHandler())
 
 PATTERN_SEGMENT_WAV_FILE = re.compile(r"^0x((?:[0-9a-fA-F]{32})+)\.wav$")
+PATTERN_BASE64_ENCODING = re.compile(r"^[A-Za-z0-9+/=]+$")
+
+
+def _fetch_json_audio(data: Any, signature: bytes = b'RIFF') -> bytes | None:
+    if isinstance(data, dict):
+        for value in data.values():
+            result = _fetch_json_audio(value, signature)
+            if result:
+                return result
+    elif isinstance(data, list):
+        for item in data:
+            result = _fetch_json_audio(item, signature)
+            if result:
+                return result
+    elif isinstance(data, str):
+        if PATTERN_BASE64_ENCODING.fullmatch(data):
+            decoded = base64.b64decode(data, validate=True)
+            if decoded.startswith(signature):
+                return decoded
+    return None
 
 
 def _create_segment_wav(service: Service, segment: structure.Segment, workspace: Path) -> None:
@@ -43,15 +64,14 @@ def _create_segment_wav(service: Service, segment: structure.Segment, workspace:
 
     if re.search(r"\bapplication/json\b", response.headers.get("Content-Type", ""), re.IGNORECASE):
         try:
-            data = response.json()
+            data = _fetch_json_audio(response.json())
+            if not data:
+                raise PipelineError("Invalid JSON response from TTS service")
+            with open(output, "wb") as file:
+                file.write(data)
+            return
         except json.JSONDecodeError:
             raise PipelineError("Invalid JSON response from TTS service")
-        data = data.get("audioContent")
-        if not data:
-            raise PipelineError("Invalid JSON response from TTS service")
-        with open(output, "wb") as file:
-            file.write(base64.b64decode(data))
-        return
 
     raise PipelineError(f"Unsupported Content-Type: {response.headers.get('Content-Type')}")
 

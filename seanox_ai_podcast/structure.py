@@ -263,25 +263,15 @@ def parse(source: str | Path) -> Podcast:
 
     audio = structure.get("audio", {})
     service = audio.get("service", {})
-    provider = service.get("provider", {})
-    if provider:
-        provider = AudioService(provider)
-        service = Service(
-            proxy=service.get("proxy"),
-            timeout=service.get("timeout", -1),
-            url=provider.url,
-            headers=provider.headers,
-            body=provider.body
-        )
-    else:
-        service = Service(
-            proxy=service.get("proxy"),
-            timeout=service.get("timeout", -1),
-            url=service.get("url"),
-            headers=service.get("headers"),
-            body=service.get("body")
-        )
-    audio = Audio(service=service)
+    provider = AudioService(service.get("provider", service))
+    audio = Audio(service=Service(
+        proxy=service.get("proxy"),
+        timeout=service.get("timeout", -1),
+        url=provider.url,
+        headers=provider.headers,
+        body=provider.body,
+        decode=provider.decode
+    ))
 
     speakers = {}
     for name, speaker in structure.get("speakers", {}).items():

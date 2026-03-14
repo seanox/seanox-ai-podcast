@@ -60,15 +60,6 @@ class HashableStruct:
 
 
 @dataclass
-class Provider:
-    name: str
-    model: str
-    token: str
-    text: str
-    prompt: str
-
-
-@dataclass
 class Service(HashableStruct):
     timeout: int = field(hash=False)
     url: str

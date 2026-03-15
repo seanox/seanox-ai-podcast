@@ -120,8 +120,8 @@ class PipelineError(Exception):
 class PipelineError(Exception):
 
     def __init__(self, message: str, details: str = None):
-        super().__init__(message)
-        self.details = details
+        super().__init__(message.strip() if message and message.strip() else None)
+        self.details = details.strip() if details and details.strip() else None
 
     def __str__(self):
         if self.details:

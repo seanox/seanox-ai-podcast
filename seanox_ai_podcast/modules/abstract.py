@@ -21,7 +21,7 @@ class AbstractAudioService:
     @staticmethod
     def create_dataclass(data: dict, required: list[str], optional: list[str] = None) -> Any:
 
-        missing = [key for key in required if key not in data]
+        missing = [key for key in required if not data.get(key)]
         if missing:
             raise ValueError(f"Missing required fields: {', '.join(missing)}")
 
@@ -31,13 +31,17 @@ class AbstractAudioService:
         values = {}
 
         for key in required + optional:
-
             if not key or key[0].isdigit():
                 continue
-
             value = data.get(key)
             field = PATTERN_NORMALIZE.sub("_", key.lower())
             if key in required:
+                if value is None:
+                    raise ValueError(f"Missing required fields: {', '.join(missing)}")
+
+
+
+
                 fields.append((field, type(value), value))
             else:
                 fields.append((field, Optional[type(value)], value))
@@ -106,7 +110,7 @@ class StandardAudioService:
     def decode(self, response: Response) -> bytes:
 
         if response.status_code != 200:
-            raise AudioServiceError(f"Unexpected HTTP response: {response.status_code} {response.reason}".strip())
+            raise AudioServiceError(f"Unexpected HTTP response: {response.status_code} {response.reason}")
 
         content_type = response.headers.get("Content-Type", "")
         if not re.search(r"\baudio/(x-)?wav\b", content_type, re.IGNORECASE):
@@ -123,8 +127,8 @@ class StandardAudioService:
 class AudioServiceError(Exception):
 
     def __init__(self, message: str, details: str = None):
-        super().__init__(message)
-        self.details = details
+        super().__init__(message.strip() if message and message.strip() else None)
+        self.details = details.strip() if details and details.strip() else None
 
     def __str__(self):
         if self.details:

@@ -96,7 +96,9 @@ class StandardAudioService:
     headers: dict[str, str] | None = None
 
     def __init__(self, data: dict):
-        data = AbstractAudioService.create_dataclass(data, ["url", "headers", "body"])
+        data = AbstractAudioService.create_dataclass(data, [
+            "url", "headers", "body"
+        ])
         object.__setattr__(self, "url", data.url)
         object.__setattr__(self, "headers", data.headers)
         object.__setattr__(self, "body", data.body)

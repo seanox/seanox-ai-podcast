@@ -3,9 +3,9 @@
 import logging
 import re
 
-from dataclasses import dataclass
+from dataclasses import dataclass, make_dataclass
 from requests import Response
-from typing import Callable
+from typing import Callable, Any, Optional
 
 from seanox_ai_podcast.modules import (
     GoogleGenerativeLanguageService, GoogleCloudService
@@ -15,15 +15,47 @@ LOGGING = logging.getLogger(__name__)
 LOGGING.addHandler(logging.NullHandler())
 
 
-def check_inconsistent_service_configuration(data: dict):
-    if not data:
-        return
-    if any(key in data for key in ("url", "body", "headers")):
-        LOGGING.warning("YAML [structure]: audio.service.provider is used; url, body, headers are ignored.")
+@dataclass(frozen=True)
+class AbstractAudioService:
+
+    @staticmethod
+    def create_dataclass(data: dict, required: list[str], optional: list[str] = None) -> Any:
+
+        missing = [key for key in required if key not in data]
+        if missing:
+            raise ValueError(f"Missing required fields: {', '.join(missing)}")
+
+        PATTERN_NORMALIZE = re.compile("[^0-9a-zA-Z]+")
+
+        fields = []
+        values = {}
+
+        for key in required + optional:
+
+            if not key or key[0].isdigit():
+                continue
+
+            value = data.get(key)
+            field = PATTERN_NORMALIZE.sub("_", key.lower())
+            if key in required:
+                fields.append((field, type(value), value))
+            else:
+                fields.append((field, Optional[type(value)], value))
+            values[field] = value
+
+        cls = make_dataclass("__dataclass", fields)
+        return cls(**values)
+
+    @staticmethod
+    def check_inconsistent_service_configuration(data: dict):
+        if not data:
+            return
+        if any(key in data for key in ("url", "body", "headers")):
+            LOGGING.warning("YAML [structure]: audio.service.provider is used; url, body, headers are ignored.")
 
 
 @dataclass(frozen=True)
-class AudioService():
+class AudioService:
     url: str
     body: str
     headers: dict[str, str] | None = None
@@ -44,10 +76,10 @@ class AudioService():
                 LOGGING.warning("YAML [structure]: audio.service.provider.name is required")
             match name.lower():
                 case "generativelanguage.googleapis.com":
-                    check_inconsistent_service_configuration(data)
+                    AbstractAudioService.check_inconsistent_service_configuration(data)
                     service = GoogleGenerativeLanguageService(data)
                 case "texttospeech.googleapis.com":
-                    check_inconsistent_service_configuration(data)
+                    AbstractAudioService.check_inconsistent_service_configuration(data)
                     service = GoogleCloudService(data)
                 case _:
                     raise AudioServiceError(f"YAML [structure]: audio.service.provider {provider or 'None'} is not supported")
@@ -64,9 +96,10 @@ class StandardAudioService:
     headers: dict[str, str] | None = None
 
     def __init__(self, data: dict):
-        object.__setattr__(self, "url", data.get("url", ""))
-        object.__setattr__(self, "headers", data.get("headers", {}))
-        object.__setattr__(self, "body", data.get("body", ""))
+        data = AbstractAudioService.create_dataclass(data, ["url", "headers", "body"])
+        object.__setattr__(self, "url", data.url)
+        object.__setattr__(self, "headers", data.headers)
+        object.__setattr__(self, "body", data.body)
 
     def decode(self, response: Response) -> bytes:
 
@@ -74,7 +107,7 @@ class StandardAudioService:
             raise AudioServiceError(f"Unexpected HTTP response: {response.status_code} {response.reason}".strip())
 
         content_type = response.headers.get("Content-Type", "")
-        if not re.search(r"\baudio/wav\b", content_type, re.IGNORECASE):
+        if not re.search(r"\baudio/(x-)?wav\b", content_type, re.IGNORECASE):
             raise AudioServiceError(f"Unexpected Content-Type: {content_type or 'None'}")
         chunks = []
         for index, chunk in enumerate(response.iter_content(chunk_size=8192)):

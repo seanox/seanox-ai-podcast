@@ -50,8 +50,6 @@ def _create_segment_wav(service: Service, segment: structure.Segment, workspace:
         proxies=service.proxy,
         timeout=service.timeout
     )
-    if response.status_code != 200:
-        raise PipelineError(f"Unexpected HTTP response: {response.status_code}")
 
     data = service.decode(response)
     if not data or data[:4] != b"RIFF":
@@ -115,5 +113,17 @@ def pipeline(source: str | Path, workspace: str | Path = None) -> None:
 
 
 class PipelineError(Exception):
-    def __init__(self, message: str):
+    def __init__(self, message: str, details: str = None):
         super().__init__(message)
+
+
+class PipelineError(Exception):
+
+    def __init__(self, message: str, details: str = None):
+        super().__init__(message)
+        self.details = details
+
+    def __str__(self):
+        if self.details:
+            return f"{super().__str__()} -- {self.details}"
+        return super().__str__()

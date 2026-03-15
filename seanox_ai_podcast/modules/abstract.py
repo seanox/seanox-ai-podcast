@@ -1,4 +1,5 @@
 # seanox_ai_podcast/modules/abstract.py
+
 import logging
 import re
 
@@ -68,6 +69,10 @@ class StandardAudioService:
         object.__setattr__(self, "body", data.get("body", ""))
 
     def decode(self, response: Response) -> bytes:
+
+        if response.status_code != 200:
+            raise AudioServiceError(f"Unexpected HTTP response: {response.status_code} {response.reason}".strip())
+
         content_type = response.headers.get("Content-Type", "")
         if not re.search(r"\baudio/wav\b", content_type, re.IGNORECASE):
             raise AudioServiceError(f"Unexpected Content-Type: {content_type or 'None'}")
@@ -81,5 +86,12 @@ class StandardAudioService:
 
 
 class AudioServiceError(Exception):
-    def __init__(self, message: str):
+
+    def __init__(self, message: str, details: str = None):
         super().__init__(message)
+        self.details = details
+
+    def __str__(self):
+        if self.details:
+            return f"{super().__str__()} -- {self.details}"
+        return super().__str__()

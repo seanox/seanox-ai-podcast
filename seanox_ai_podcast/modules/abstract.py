@@ -8,7 +8,8 @@ from requests import Response
 from typing import Callable, Any, Optional
 
 from seanox_ai_podcast.modules import (
-    GoogleGenerativeLanguageService, GoogleCloudService
+    GoogleGenerativeLanguageService,
+    GoogleCloudService
 )
 
 LOGGING = logging.getLogger(__name__)
@@ -16,7 +17,7 @@ LOGGING.addHandler(logging.NullHandler())
 
 
 @dataclass(frozen=True)
-class AbstractAudioService:
+class AbstractDynamicDataclass:
 
     @staticmethod
     def create_dataclass(data: dict, required: list[str], optional: list[str] = None) -> Any:
@@ -38,24 +39,23 @@ class AbstractAudioService:
             if key in required:
                 if value is None:
                     raise ValueError(f"Missing required fields: {', '.join(missing)}")
-
-
-
-
                 fields.append((field, type(value), value))
             else:
                 fields.append((field, Optional[type(value)], value))
             values[field] = value
 
-        cls = make_dataclass("__dataclass", fields)
-        return cls(**values)
+        return make_dataclass("__dataclass", fields)(**values)
+
+
+@dataclass(frozen=True)
+class AbstractAudioService:
 
     @staticmethod
     def check_inconsistent_service_configuration(data: dict):
         if not data:
             return
         if any(key in data for key in ("url", "body", "headers")):
-            LOGGING.warning("YAML [structure]: audio.service.provider is used; url, body, headers are ignored.")
+            LOGGING.warning("YAML [structure]: audio.service.provider is used, so the url, body, and headers are ignored")
 
 
 @dataclass(frozen=True)
@@ -100,7 +100,7 @@ class StandardAudioService:
     headers: dict[str, str] | None = None
 
     def __init__(self, data: dict):
-        data = AbstractAudioService.create_dataclass(data, [
+        data = AbstractDynamicDataclass.create(data, [
             "url", "headers", "body"
         ])
         object.__setattr__(self, "url", data.url)

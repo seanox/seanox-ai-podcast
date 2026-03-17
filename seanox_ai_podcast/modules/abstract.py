@@ -1,16 +1,12 @@
 # seanox_ai_podcast/modules/abstract.py
 
 import logging
+import jmespath
 import re
 
 from dataclasses import dataclass, make_dataclass
 from requests import Response
 from typing import Callable, Any, Optional
-
-from seanox_ai_podcast.modules import (
-    GoogleGenerativeLanguageService,
-    GoogleCloudService
-)
 
 LOGGING = logging.getLogger(__name__)
 LOGGING.addHandler(logging.NullHandler())
@@ -20,7 +16,7 @@ LOGGING.addHandler(logging.NullHandler())
 class AbstractDynamicDataclass:
 
     @staticmethod
-    def create_dataclass(data: dict, required: list[str], optional: list[str] = None) -> Any:
+    def create(data: dict, required: list[str], optional: list[str] = None) -> Any:
 
         missing = [key for key in required if not data.get(key)]
         if missing:
@@ -31,7 +27,7 @@ class AbstractDynamicDataclass:
         fields = []
         values = {}
 
-        for key in required + optional:
+        for key in required + (optional or []):
             if not key or key[0].isdigit():
                 continue
             value = data.get(key)
@@ -73,24 +69,24 @@ class AudioService:
             object.__setattr__(self, "body", service.body)
             object.__setattr__(self, "decode", service.decode)
             return
-        provider = data.get("provider", {})
-        if provider:
-            name = provider.get("name", "")
-            if not name:
-                LOGGING.warning("YAML [structure]: audio.service.provider.name is required")
-            match name.lower():
-                case "generativelanguage.googleapis.com":
-                    AbstractAudioService.check_inconsistent_service_configuration(data)
-                    service = GoogleGenerativeLanguageService(data)
-                case "texttospeech.googleapis.com":
-                    AbstractAudioService.check_inconsistent_service_configuration(data)
-                    service = GoogleCloudService(data)
-                case _:
-                    raise AudioServiceError(f"YAML [structure]: audio.service.provider {provider or 'None'} is not supported")
-            object.__setattr__(self, "url", service.url)
-            object.__setattr__(self, "headers", service.headers)
-            object.__setattr__(self, "body", service.body)
-            object.__setattr__(self, "decode", service.decode)
+        provider = (jmespath.search("provider.name", data) or "").strip()
+        match provider.lower():
+            case "generativelanguage.googleapis.com":
+                AbstractAudioService.check_inconsistent_service_configuration(data)
+                from seanox_ai_podcast.modules import GoogleGenerativeLanguageService
+                service = GoogleGenerativeLanguageService(data["provider"])
+            case "texttospeech.googleapis.com":
+                AbstractAudioService.check_inconsistent_service_configuration(data)
+                from seanox_ai_podcast.modules import GoogleCloudService
+                service = GoogleCloudService(data["provider"])
+            case _:
+                if not provider:
+                    raise AudioServiceError(f"YAML [structure]: audio.service.provider is required")
+                raise AudioServiceError(f"YAML [structure]: audio.service.provider {provider} is not supported")
+        object.__setattr__(self, "url", service.url)
+        object.__setattr__(self, "headers", service.headers)
+        object.__setattr__(self, "body", service.body)
+        object.__setattr__(self, "decode", service.decode)
 
 
 @dataclass(frozen=True)

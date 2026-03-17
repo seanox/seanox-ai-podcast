@@ -1,13 +1,27 @@
 # seanox_ai_podcast/modules/generativelanguage_googleapis_com.py
 
+import base64
+import io
+import jmespath
 import json
 import re
+import wave
 
 from dataclasses import dataclass
 from requests import Response
 
 
-@dataclass(frozsen=True)
+def _parse_audio_meta(meta: str) -> dict:
+    meta = meta.replace('/', '=', 1)
+    meta = dict(part.split('=') for part in meta.split(';'))
+    return {
+        "sample-rate": int(meta.get("rate", 24000)),
+        "sample-width": 2 if "L16" in meta.get("audio", "") else 1,
+        "channels": 1
+    }
+
+
+@dataclass(frozen=True)
 class GoogleGenerativeLanguageService:
     url: str
     body: str
@@ -15,8 +29,8 @@ class GoogleGenerativeLanguageService:
 
     def __init__(self, data: dict):
 
-        from seanox_ai_podcast.modules.abstract import AbstractAudioService
-        data = AbstractAudioService.create_dataclass(data, [
+        from seanox_ai_podcast.modules.abstract import AbstractDynamicDataclass
+        data = AbstractDynamicDataclass.create(data, [
             "model", "version", "api-key", "text", "prompt"
         ])
 
@@ -48,9 +62,27 @@ class GoogleGenerativeLanguageService:
 
         from seanox_ai_podcast.modules.abstract import AudioServiceError
         if response.status_code != 200:
-            raise AudioServiceError(f"Unexpected HTTP response: {response.status_code} {response.reason}")
+            data = response.json()
+            message = jmespath.search("error.message", data)
+            raise AudioServiceError(f"Unexpected HTTP response: {response.status_code} {response.reason}", message)
 
         content_type = response.headers.get("Content-Type", "")
         if not re.search(r"\bapplication/json\b", content_type, re.IGNORECASE):
             raise AudioServiceError(f"Unexpected Content-Type: {content_type}")
-        # TODO:
+
+        data = response.json()
+        meta = _parse_audio_meta(
+            jmespath.search("candidates[0].content.parts[0].inlineData.mimeType", data)
+        )
+        audio = base64.b64decode(
+            jmespath.search("candidates[0].content.parts[0].inlineData.data", data)
+        )
+
+        with io.BytesIO() as buffer:
+            with wave.open(buffer, 'wb') as wav:
+                wav.setnchannels(meta['channels'])
+                wav.setsampwidth(meta['sample-width'])
+                wav.setframerate(meta['sample-rate'])
+                wav.writeframes(audio)
+            wav_bytes = buffer.getvalue()
+        return wav_bytes

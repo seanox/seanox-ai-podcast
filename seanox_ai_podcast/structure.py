@@ -255,7 +255,7 @@ def parse(source: str | Path) -> Podcast:
 
     audio = structure.get("audio", {})
     service = audio.get("service", {})
-    provider = AudioService(service.get("provider", service))
+    provider = AudioService(service)
     audio = Audio(service=Service(
         proxy=service.get("proxy"),
         timeout=service.get("timeout", -1),

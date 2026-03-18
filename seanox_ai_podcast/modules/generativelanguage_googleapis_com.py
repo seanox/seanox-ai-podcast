@@ -10,6 +10,11 @@ import wave
 from dataclasses import dataclass
 from requests import Response
 
+# Documentation
+# - https://ai.google.dev/gemini-api/docs
+# - https://ai.google.dev/gemini-api/docs/speech-generation
+# - https://ai.google.dev/gemini-api/docs/audio#rest
+# - https://ai.google.dev/api/generate-content
 
 def _parse_audio_meta(meta: str) -> dict:
     meta = meta.replace('/', '=', 1)

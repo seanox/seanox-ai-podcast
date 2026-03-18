@@ -47,9 +47,15 @@ def _fetch_json_audio(data: Any, signature: bytes = None) -> bytes | None:
 def _create_segment_wav(service: Service, segment: structure.Segment, workspace: Path, simulate: bool = False) -> None:
 
     output = Path(workspace, f"0x{segment.hash()}.wav")
+    payload = Template(service.body).render(speaker=segment.speaker, segment=segment)
+
+    # According to RFC 2045 (5.1.), the Content-Type is determined strictly
+    content_type = service.headers.get("content-type", "")
+    content_type = re.sub(r"\s*;.*$", "", content_type).lower().strip();
+    if content_type != "application/json":
+        raise PipelineError("Invalid payload: Only application/json is supported")
 
     if simulate:
-        payload = Template(service.body).render(speaker=segment.speaker, segment=segment)
         payload = re.sub(r"\s*[\r\n]+\s*", " ", payload)
         data = {
             "url": service.url,
@@ -66,7 +72,7 @@ def _create_segment_wav(service: Service, segment: structure.Segment, workspace:
     response = requests.post(
         service.url,
         headers=service.headers,
-        data=Template(service.body).render(speaker=segment.speaker, segment=segment),
+        data=payload,
         proxies=service.proxy,
         timeout=service.timeout
     )

@@ -16,6 +16,7 @@ from requests import Response
 # - https://ai.google.dev/gemini-api/docs/audio#rest
 # - https://ai.google.dev/api/generate-content
 
+
 def _parse_audio_meta(meta: str) -> dict:
     meta = meta.replace('/', '=', 1)
     meta = dict(part.split('=') for part in meta.split(';'))

@@ -14,7 +14,11 @@ setup(
     license="Apache-2.0",
     python_requires=">=3.10",
     install_requires=[
-        "pyyaml>=6.0"
+        "PyYAML",
+        "Jinja2",
+        "numpy",
+        "requests",
+        "jmespath",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",

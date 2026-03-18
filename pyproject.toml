@@ -28,8 +28,12 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 
-dependencies = [
-    "pyyaml>=6.0"
+dependencies=[
+    "PyYAML",
+    "Jinja2",
+    "numpy",
+    "requests",
+    "jmespath",
 ]
 
 [project.urls]

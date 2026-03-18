@@ -2,10 +2,13 @@
 
 import base64
 import logging
-import numpy as np
+import os
+
+import numpy
 import re
 import requests
 import wave
+import yaml
 
 from jinja2 import Template
 from pathlib import Path
@@ -41,9 +44,24 @@ def _fetch_json_audio(data: Any, signature: bytes = None) -> bytes | None:
     return None
 
 
-def _create_segment_wav(service: Service, segment: structure.Segment, workspace: Path) -> None:
+def _create_segment_wav(service: Service, segment: structure.Segment, workspace: Path, simulate: bool = False) -> None:
 
     output = Path(workspace, f"0x{segment.hash()}.wav")
+
+    if simulate:
+        payload = Template(service.body).render(speaker=segment.speaker, segment=segment)
+        payload = re.sub(r"\s*[\r\n]+\s*", " ", payload)
+        data = {
+            "url": service.url,
+            "headers": service.headers,
+            "payload": payload,
+            "proxies": service.proxy,
+            "timeout": service.timeout
+        }
+        data = yaml.dump(data, sort_keys=False, default_flow_style=False, allow_unicode=True)
+        data = os.linesep.join("\t" + line for line in data.splitlines())
+        LOGGING.info(f"- {output}{os.linesep}{data}")
+        return
 
     response = requests.post(
         service.url,
@@ -64,33 +82,40 @@ def read_wav(path: Path):
     with wave.open(str(path), "rb") as w:
         params = w.getparams()
         frames = w.readframes(w.getnframes())
-        data = np.frombuffer(frames, dtype=np.int16)
+        data = numpy.frombuffer(frames, dtype=numpy.int16)
     return data, params
 
 
-def _mix_podcast_wav(podcast, workspace: Path, target: Path):
+def _mix_podcast_wav(podcast, workspace: Path, target: Path, simulate: bool = False):
+
+    if simulate:
+        for segment in podcast.segments:
+            file = workspace / f"0x{segment.hash()}.wav"
+            LOGGING.info(f"- {file}")
+        return
 
     # Create an empty audio mix buffer with an extended range (safe headroom)
     # to prevent overflow during mixing. Standard WAV audio data is usually
     # 16-bit, but for mixing the bit depth is temporarily increased to 32-bit.
     # At the end, the signal is clipped and converted back to the 16-bit range
     # required for WAV output.
-    mixed = np.zeros(0, dtype=np.int32)
+    mixed = numpy.zeros(0, dtype=numpy.int32)
 
     for segment in podcast.segments:
         file = workspace / f"0x{segment.hash()}.wav"
 
+        LOGGING.info(f"- {file}")
         with wave.open(str(file), "rb") as input:
             params = input.getparams()
             frames = input.readframes(input.getnframes())
-            data = np.frombuffer(frames, dtype=np.int16)
+            data = numpy.frombuffer(frames, dtype=numpy.int16)
 
         sample_rate = params.framerate
         samples_per_ms = sample_rate / 1000
         overlap_samples = int(round(segment.offset * samples_per_ms))
 
         if mixed.size == 0:
-            mixed = data.astype(np.int32)
+            mixed = data.astype(numpy.int32)
             continue
 
         # For mixing (overlap), the audio blocks are simply joined.
@@ -98,28 +123,28 @@ def _mix_podcast_wav(podcast, workspace: Path, target: Path):
         start = max(0, mixed.size - overlap_samples)
         end = start + data.size
         if end > mixed.size:
-            mixed = np.pad(mixed, (0, end - mixed.size))
-        mixed[start:end] += data.astype(np.int32)
+            mixed = numpy.pad(mixed, (0, end - mixed.size))
+        mixed[start:end] += data.astype(numpy.int32)
 
     # For a soft fade-out, 250 ms of silence is added.
     silence_duration = 0.250
     silence_samples = int(silence_duration * sample_rate)
-    silence = np.zeros(silence_samples, dtype=mixed.dtype)
-    mixed = np.concatenate([mixed, silence])
+    silence = numpy.zeros(silence_samples, dtype=mixed.dtype)
+    mixed = numpy.concatenate([mixed, silence])
 
     # Limit the mixed signal to the valid 16-bit range to prevent overflow when
     # reducing the bit depth. During mixing, values may exceed the 16-bit limits
     # due to summation. Therefore, the signal is first clipped to [-32768, 32767]
     # and then converted from 32-bit back to 16-bit, which is required for
     # standard WAV output.
-    mixed = np.clip(mixed, -32768, 32767).astype(np.int16)
+    mixed = numpy.clip(mixed, -32768, 32767).astype(numpy.int16)
 
     with wave.open(str(target), "wb") as output:
         output.setparams(params)
-        output.writeframes(mixed.astype(np.int16).tobytes())
+        output.writeframes(mixed.astype(numpy.int16).tobytes())
 
 
-def pipeline(source: str | Path, workspace: str | Path = None) -> None:
+def pipeline(source: str | Path, workspace: str | Path = None, simulate: bool = False) -> None:
 
     LOGGING.info(f"Seanox Podcast as Code [Version 0.0.0 00000000]")
     LOGGING.info(f"Copyright (C) 0000 Seanox Software Solutions")
@@ -143,35 +168,34 @@ def pipeline(source: str | Path, workspace: str | Path = None) -> None:
     LOGGING.info(f"Parsing {source}")
     podcast = structure.parse(source)
 
+    simulation = "[SIMULATION] " if simulate else ""
+
     # Irrelevant segments are cleaned up.
     # Irrelevant means all existing segments that do not match any of the
     # current segments based on their hash values.
-    LOGGING.info("Cleaning up obsolete segments")
+    LOGGING.info(f"{simulation}Cleaning up obsolete segments")
     segments = [segment.hash() for segment in podcast.segments]
     for file in workspace.glob("*.wav"):
         match = PATTERN_SEGMENT_WAV_FILE.match(file.name)
         if match and match.group(1) not in segments:
             LOGGING.info(f"- {file}")
-            file.unlink()
+            if not simulate:
+                file.unlink()
 
-    LOGGING.info("Creating new segments")
+    LOGGING.info(f"{simulation}Creating new segments")
     for segment in podcast.segments:
         file = workspace / f"0x{segment.hash()}.wav"
         if file.exists():
             continue
-        LOGGING.info(f"- {file}")
-        _create_segment_wav(podcast.audio.service, segment, workspace)
+        if not simulate:
+            LOGGING.info(f"- {file}")
+        _create_segment_wav(podcast.audio.service, segment, workspace, simulate)
 
     target = source.with_suffix(".wav")
-    LOGGING.info(f"Mixing and cutting {target}")
-    _mix_podcast_wav(podcast, workspace, target)
+    LOGGING.info(f"{simulation}Mixing and cutting {target}")
+    _mix_podcast_wav(podcast, workspace, target, simulate)
 
     LOGGING.info("Done")
-
-
-class PipelineError(Exception):
-    def __init__(self, message: str, details: str = None):
-        super().__init__(message)
 
 
 class PipelineError(Exception):

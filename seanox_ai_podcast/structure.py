@@ -9,6 +9,7 @@ from dataclasses import dataclass, field, fields
 from itertools import chain
 from jinja2 import Template
 from pathlib import Path
+from requests.structures import CaseInsensitiveDict
 from typing import Any, Callable
 from urllib.parse import urlparse
 
@@ -81,7 +82,7 @@ class Service(HashableStruct):
                 raise ValueError("YAML [structure]: audio.service.proxy valid URL required")
 
         self.timeout = None if not self.timeout or self.timeout <= 0 else self.timeout / 1000
-        self.headers = {key: str(value) for key, value in self.headers.items()}
+        self.headers = CaseInsensitiveDict({key: str(value) for key, value in self.headers.items()})
 
     @property
     def proxies(self) -> dict | None:
@@ -282,8 +283,7 @@ def parse(source: str | Path) -> Podcast:
         speakers[name.lower()] = speaker
 
     meta = " ".join(
-        [audio.hash()] +
-        [speakers[name.lower()].hash() for name in sorted(speakers)]
+        [audio.hash()]
     )
 
     segments = []

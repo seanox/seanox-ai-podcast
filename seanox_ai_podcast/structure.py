@@ -122,7 +122,7 @@ class Speaker(HashableStruct):
     @property
     def about_me(self) -> str:
         age = f"{self.age} years" if self.age else None
-        profile = [", ".join(filter(None, [self.name, self.language, self.gender, age])) + "."]
+        profile = [f"{self.name}: {', '.join(filter(None, [self.language, self.gender, age])) + '.'}"]
         if self.characters:
             profile.append(f"Role: {', '.join(self.characters)}.")
         if self.personality:

@@ -2,8 +2,10 @@
 
 import base64
 import logging
+import numpy as np
 import re
 import requests
+import wave
 
 from jinja2 import Template
 from pathlib import Path
@@ -58,8 +60,63 @@ def _create_segment_wav(service: Service, segment: structure.Segment, workspace:
         file.write(data)
 
 
-def _mix_podcast_wav(podcast: structure.Podcast, workspace: Path, target: Path) -> None:
-    pass
+def read_wav(path: Path):
+    with wave.open(str(path), "rb") as w:
+        params = w.getparams()
+        frames = w.readframes(w.getnframes())
+        data = np.frombuffer(frames, dtype=np.int16)
+    return data, params
+
+
+def _mix_podcast_wav(podcast, workspace: Path, target: Path):
+
+    # Create an empty audio mix buffer with an extended range (safe headroom)
+    # to prevent overflow during mixing. Standard WAV audio data is usually
+    # 16-bit, but for mixing the bit depth is temporarily increased to 32-bit.
+    # At the end, the signal is clipped and converted back to the 16-bit range
+    # required for WAV output.
+    mixed = np.zeros(0, dtype=np.int32)
+
+    for segment in podcast.segments:
+        file = workspace / f"0x{segment.hash()}.wav"
+
+        with wave.open(str(file), "rb") as input:
+            params = input.getparams()
+            frames = input.readframes(input.getnframes())
+            data = np.frombuffer(frames, dtype=np.int16)
+
+        sample_rate = params.framerate
+        samples_per_ms = sample_rate / 1000
+        overlap_samples = int(round(segment.offset * samples_per_ms))
+
+        if mixed.size == 0:
+            mixed = data.astype(np.int32)
+            continue
+
+        # For mixing (overlap), the audio blocks are simply joined.
+        # The audio buffer must be increased accordingly.
+        start = max(0, mixed.size - overlap_samples)
+        end = start + data.size
+        if end > mixed.size:
+            mixed = np.pad(mixed, (0, end - mixed.size))
+        mixed[start:end] += data.astype(np.int32)
+
+    # For a soft fade-out, 250 ms of silence is added.
+    silence_duration = 0.250
+    silence_samples = int(silence_duration * sample_rate)
+    silence = np.zeros(silence_samples, dtype=mixed.dtype)
+    mixed = np.concatenate([mixed, silence])
+
+    # Limit the mixed signal to the valid 16-bit range to prevent overflow when
+    # reducing the bit depth. During mixing, values may exceed the 16-bit limits
+    # due to summation. Therefore, the signal is first clipped to [-32768, 32767]
+    # and then converted from 32-bit back to 16-bit, which is required for
+    # standard WAV output.
+    mixed = np.clip(mixed, -32768, 32767).astype(np.int16)
+
+    with wave.open(str(target), "wb") as output:
+        output.setparams(params)
+        output.writeframes(mixed.astype(np.int16).tobytes())
 
 
 def pipeline(source: str | Path, workspace: str | Path = None) -> None:

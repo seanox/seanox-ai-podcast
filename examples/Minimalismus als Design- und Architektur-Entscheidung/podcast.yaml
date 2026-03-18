@@ -1,32 +1,18 @@
 audio:
   service:
-#   proxy: http://proxy:3128
-#   timeout: 30000
-    url: https://texttospeech.googleapis.com/v1/text:synthesize
-    headers:
-      x-goog-user-project: "${GOOGLE_PROJECT_ID}"
-      Authorization: "Bearer ${GOOGLE_API_TOKEN}"
-      Content-Type: "application/json; charset=utf-8"
-    body: |
-      {
-        "input": {
-          "text": "{{ segment.text }}",
-          "prompt": "{{ segment.prompt }}"
-        },
-        "voice": {
-          "languageCode": "{{ speaker.language }}",
-          "name": "{{ speaker.voice }}",
-          "ssmlGender": "{{ speaker.gender }}"
-        },
-        "audioConfig": {
-          "audioEncoding": "WAV"
-        }
-      }
+    timeout: 300000
+    provider:
+      name: "generativelanguage.googleapis.com"
+      version: "v1beta"
+      model: "gemini-2.5-flash-preview-tts"
+      api-key: "${GOOGLE_API_TOKEN}"
+      text: "{{ segment.text }}"
+      prompt: "{{ segment.prompt }}"
 
 speakers:
   tom:
     language: de-DE
-    voice: TODO
+    voice: Enceladus
     name: Tom (Thomas Buchwald)
     gender: male
     age: 55
@@ -38,13 +24,12 @@ speakers:
       - Kommunikationswissenschaft
     personality:
       - ruhig
-      - objektiv
-      - rational denkend
-      - offen für andere Ansichten aber nicht gutgläubig
-      - hinterfragt
+      - objektiv, rational denkend
+      - offen für andere Ansichten, nicht gutgläubig, hinterfragt
+      - spricht schnell, aber nicht zu schnell
   cleo:
     language: de-DE
-    voice: TODO
+    voice: Kore
     name: Cleo (Claire Renard)
     gender: female
     age: 30-35
@@ -56,43 +41,43 @@ speakers:
       - Kommunikationswissenschaft
     personality:
       - leicht quirlig
-      - etwas lebendiger
-      - mit einem Hauch von Enthusiasmus
-      - immer neugierig, offen für andere Ansichten aber nicht gutgläubig
-      - hinterfragt
+      - etwas lebendiger mit einem Hauch von Enthusiasmus
+      - neugierig, offen für andere Ansichten, nicht gutgläubig, hinterfragt
       - will den Kern von Dingen und die Zusammenhänge verstehen
+      - spricht schnell, aber nicht zu schnell
 
 segments:
   - speaker: tom
     offset:
     text: |
       Willkommen zu unserem allerersten Podcast!
-
-      Und Respekt an alle -- die das mehrmals im Monat schaffen.
-
-      Es war mehr Arbeit als gedacht -- macht aber Spass :-)
-
-      Wir sind:
-    prompt:
+      Und Respekt an alle -- die das -- mehrmals -- im Monat schaffen.
+      Es ist mehr Arbeit als gedacht -- macht aber Spass :-)
+      
+      Ich bin Tom :-)
 
   - speaker: cleo
     offset:
-    text: Cleo
+    text: |
+      Hallo :-)
+      Und ich bin Cleo.
     prompt:
 
   - speaker: tom
     offset:
     text: |
-      Und Tom :-)
-
-      Worum es heute geht?
+      Heute wollen wir euch auf eine kleine Reise mitnehmen.
+      Auch wenn der Titel ein bisschen erahnen lässt worum geht.
+      Was nicht schlimm ist.
+      
+      Aber lasst uns mit dem Anfang beginnen :-)
       
       Vor ein paar Wochen bekam ich von einem Kollegen einen Link zu einem Gewinnspiel.
-      Bei dem 3 einhalb Zoll Disketten verlost werden.
+      Bei dem 3 1/2 Zoll Disketten verlost werden.
       Das Projekt dahinter wird nämlich 25 Jahre alt.
       
-      Schöner -- netter -- Gag :-)
-      Bei der Diskette musste ich automatisch schmunzeln.
+      Für mich: Ein netter Gag :-)
+      Bei der Diskette musste ich schmunzeln.
       Und ich habe mich tatsächlich gefragt, ob Windows 11 noch Diskettenlaufwerke unterstützt.
       
       Nebenbei: Ja, tut es.
@@ -128,29 +113,33 @@ segments:
       
       Für mich wollte das mit der Feature-Liste einfach nicht zusammenpassen.
       
-      Das Repository macht einen sehr aufgeräumten Eindruck.
-      Aus seinem Alter macht es kein Geheimnis.
+      Das Repository wirkt jedenfalls sehr aufgeräumt.
+      
+      Und aus seinem Alter macht es auch kein Geheimnis.
+      
       Maven oder Gradle?
       Findet man hier nicht.
 
       Die Quellen sind direkt zugänglich.
       Aber ... 8 Java-Dateien?
+      
       Ich suchte weitere Packages -- Libraries -- Dependencies...
       Nur da war nichts :-)
       
-      Die Server-Klasse stand ziemlich mittig und fiel mir vermutlich thematisch auf.
-      Da musste ich einfach mal reinschauen...
+      Die Server-Klasse fiel mir vermutlich thematisch auf.
+      Jedenfalls musste ich da einfach mal reinschauen...
       
       Der erste Eindruck.
       Ehrlich?
       Ich musste schmunzeln.
       Enumeration, Vector, Runable -- also so richtig schön aus den 2000ern.
       Also Java Version 1.4 oder 1.5.
+      
       255 Zeilen -- viele Kommentare -- alles sehr überschaubar.
       
       Also... wirklich grosse Erwartungen hatte ich da nicht.
       
-      Ja -- ein universeller ServerSocket der auch SSL kann...
+      Ein puristischer ServerSocket der auch SSL kann ... ja, 
       
       Aber dann wurde es interessanter.
       
@@ -199,9 +188,7 @@ segments:
     text: |
       Ein bisschen wie in C :-)
       
-      Und du erwähntest eigenes Decoding?
-      
-      Auch für UTF-8?
+      Und du meintest ja, es gibt sogar eigenes Decoding -- auch für UTF‑8?
     prompt:
 
   - speaker: cleo
@@ -228,7 +215,7 @@ segments:
     text: |
       Ja -- ich habe mir die Doku vorgenommen.
       
-      Und Tom; Würdest Du die Beschreibung zum Format einer ini-Datei lesen?
+      Und "Tom"; Würdest Du die Beschreibung zum Format einer ini-Datei lesen?
       Also ich meine wirklich das Format -- nicht die Bedeutung der Sektionen und Schlüssel.
     prompt:
 

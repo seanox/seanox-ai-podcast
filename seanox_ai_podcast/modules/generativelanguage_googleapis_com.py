@@ -43,7 +43,7 @@ class GoogleGenerativeLanguageService:
             "model": data.model,
             "contents": [{
                 "parts": [{
-                    "text": "{{ segment.prompt | tojson }}: {{ segment.text | tojson }}"
+                    "text": "{{ segment.prompt }}: {{ segment.text }}"
                 }]
             }],
             "generationConfig": {
@@ -51,7 +51,7 @@ class GoogleGenerativeLanguageService:
                 "speechConfig": {
                     "voiceConfig": {
                         "prebuiltVoiceConfig": {
-                            "voiceName": "{{ speaker.voice | tojson }}"
+                            "voiceName": "{{ speaker.voice }}"
                         }
                     }
                 }

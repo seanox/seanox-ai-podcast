@@ -6,6 +6,7 @@ import re
 
 from dataclasses import dataclass, make_dataclass
 from requests import Response
+from requests.structures import CaseInsensitiveDict
 from typing import Callable, Any, Optional
 
 LOGGING = logging.getLogger(__name__)
@@ -65,7 +66,7 @@ class AudioService:
         if "provider" not in data:
             service = StandardAudioService(data)
             object.__setattr__(self, "url", service.url)
-            object.__setattr__(self, "headers", service.headers)
+            object.__setattr__(self, "headers", CaseInsensitiveDict(service.headers))
             object.__setattr__(self, "body", service.body)
             object.__setattr__(self, "decode", service.decode)
             return
@@ -84,7 +85,7 @@ class AudioService:
                     raise AudioServiceError(f"YAML [structure]: audio.service.provider is required")
                 raise AudioServiceError(f"YAML [structure]: audio.service.provider {provider} is not supported")
         object.__setattr__(self, "url", service.url)
-        object.__setattr__(self, "headers", service.headers)
+        object.__setattr__(self, "headers", CaseInsensitiveDict(service.headers))
         object.__setattr__(self, "body", service.body)
         object.__setattr__(self, "decode", service.decode)
 
@@ -100,7 +101,7 @@ class StandardAudioService:
             "url", "headers", "body"
         ])
         object.__setattr__(self, "url", data.url)
-        object.__setattr__(self, "headers", data.headers)
+        object.__setattr__(self, "headers", CaseInsensitiveDict(data.headers))
         object.__setattr__(self, "body", data.body)
 
     def decode(self, response: Response) -> bytes:

@@ -43,7 +43,7 @@ class GoogleGenerativeLanguageService:
             "model": data.model,
             "contents": [{
                 "parts": [{
-                    "text": "{{ segment.prompt }}: {{ segment.text }}"
+                    "text": "{{ segment.prompt | replace('\"','\\\"') }}: {{ segment.text | replace('\"','\\\"') }}"
                 }]
             }],
             "generationConfig": {
@@ -51,7 +51,7 @@ class GoogleGenerativeLanguageService:
                 "speechConfig": {
                     "voiceConfig": {
                         "prebuiltVoiceConfig": {
-                            "voiceName": "{{ speaker.voice }}"
+                            "voiceName": "{{ speaker.voice | replace('\"','\\\"') }}"
                         }
                     }
                 }

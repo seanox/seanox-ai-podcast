@@ -103,6 +103,7 @@ class Audio(HashableStruct):
 
 @dataclass
 class Speaker(HashableStruct):
+    alias: str
     name: str
     language: str
     voice: str
@@ -123,7 +124,7 @@ class Speaker(HashableStruct):
     @property
     def about_me(self) -> str:
         age = f"{self.age} years" if self.age else None
-        profile = [f"{self.name}: {', '.join(filter(None, [self.language, self.gender, age])) + '.'}"]
+        profile = [f"{self.alias} ({self.name}): {', '.join(filter(None, [self.language, self.gender, age])) + '.'}"]
         if self.characters:
             profile.append(f"Role: {', '.join(self.characters)}.")
         if self.personality:
@@ -136,7 +137,7 @@ class Speaker(HashableStruct):
 @dataclass
 class Segment(HashableStruct):
     meta: str
-    speaker: Speaker
+    speakers: list[Speaker]
     offset: int = field(hash=False)
     text: str = ""
     prompt: str = ""
@@ -144,18 +145,32 @@ class Segment(HashableStruct):
     def __post_init__(self):
         if not self.meta or not self.meta.strip():
             raise ValueError("YAML [structure]: segment.meta is required")
-        if not self.speaker:
-            raise ValueError("YAML [structure]: segment.speaker is required")
+        if not self.speakers:
+            raise ValueError("YAML [structure]: segment.speakers is required")
         if not self.text or not self.text.strip():
             raise ValueError("YAML [structure]: segment.text is required")
         if self.offset and not isinstance(self.offset, int):
             raise ValueError("YAML [structure]: segment.offset must be an integer")
 
-        self.prompt = os.linesep.join([
-            self.speaker.about_me,
-            f"Stage direction: {self.prompt}" if self.prompt else "Be natural!",
-            f"Please speak the following text as if you were {self.speaker.name} in a podcast!"
-        ])
+        if len(self.speakers) <= 1:
+            self.prompt = os.linesep.join([
+                *(speaker.about_me for speaker in self.speakers),
+                f"Stage direction: {self.prompt}" if self.prompt else "Be natural!",
+                f"Please speak the following text as if you were {', '.join(speaker.name for speaker in self.speakers)} in a podcast!"
+            ])
+        else:
+            characters = os.linesep.join(
+                f"- {speaker.alias}"
+                for speaker in self.speakers
+            )
+            self.prompt = os.linesep.join([
+                *(speaker.about_me for speaker in self.speakers),
+                f"Stage direction: {self.prompt}" if self.prompt else "Be natural!",
+                f"Please perform the following text as a natural podcast conversation between the following speakers:",
+                characters,
+                f"Each speaker should speak only their own parts.",
+                f"Maintain natural conversational pacing."
+            ])
 
 
 @dataclass
@@ -271,6 +286,7 @@ def parse(source: str | Path) -> Podcast:
         if name.lower() in speakers:
             raise ValueError(f"YAML [structure]: speakers ambiguous speaker found")
         speaker = Speaker(
+            alias=name.lower(),
             name=speaker.get("name"),
             language=speaker.get("language"),
             voice=speaker.get("voice"),
@@ -288,16 +304,24 @@ def parse(source: str | Path) -> Podcast:
 
     segments = []
     for segment in structure.get("segments", []):
-        speaker = segment.get("speaker", "").lower()
-        speaker = speakers.get(speaker)
-        if not speaker:
-            raise ValueError("YAML [structure]: segment.speaker is required")
+
+        characters = segment.get("speakers", segment.get("speaker")) or []
+        if isinstance(characters, str):
+            characters = [characters]
+        characters = [character.strip().lower() for character in characters if character and character.strip()]
+        if not characters:
+            raise ValueError("YAML [structure]: segment.speakers is required")
+        for character in characters:
+            if character not in speakers:
+                raise ValueError(f"YAML [structure]: segment.speakers {speaker} is unknown")
+
+        characters = [speakers[character] for character in characters]
         segments.append(Segment(
             meta=meta,
-            speaker=speaker,
+            speakers=characters,
             offset=segment.get("offset") or 0,
-            text=Template(segment.get("text")).render(speaker=speaker).strip(),
-            prompt=Template(segment.get("prompt") or "").render(speaker=speaker).strip()
+            text=Template(segment.get("text")).render(speakers=characters).strip(),
+            prompt=Template(segment.get("prompt") or "").render(speakers=characters).strip()
         ))
 
     return Podcast(

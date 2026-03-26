@@ -47,7 +47,7 @@ def _fetch_json_audio(data: Any, signature: bytes = None) -> bytes | None:
 def _create_segment_wav(service: Service, segment: structure.Segment, workspace: Path, simulate: bool = False) -> None:
 
     output = Path(workspace, f"0x{segment.hash()}.wav")
-    payload = Template(service.body).render(speaker=segment.speaker, segment=segment)
+    payload = Template(service.body).render(speakers=segment.speakers, segment=segment)
 
     # According to RFC 2045 (5.1.), the Content-Type is determined strictly
     content_type = service.headers.get("content-type", "")
@@ -59,7 +59,7 @@ def _create_segment_wav(service: Service, segment: structure.Segment, workspace:
         payload = re.sub(r"\s*[\r\n]+\s*", " ", payload)
         data = {
             "url": service.url,
-            "headers": service.headers,
+            "headers": dict(service.headers),
             "payload": payload,
             "proxies": service.proxy,
             "timeout": service.timeout

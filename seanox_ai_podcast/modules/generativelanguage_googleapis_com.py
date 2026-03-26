@@ -3,7 +3,6 @@
 import base64
 import io
 import jmespath
-import json
 import re
 import wave
 
@@ -13,7 +12,6 @@ from requests import Response
 # Documentation
 # - https://ai.google.dev/gemini-api/docs
 # - https://ai.google.dev/gemini-api/docs/speech-generation
-# - https://ai.google.dev/gemini-api/docs/audio#rest
 # - https://ai.google.dev/api/generate-content
 
 
@@ -45,24 +43,49 @@ class GoogleGenerativeLanguageService:
             "x-goog-api-key": data.api_key,
             "Content-Type": "application/json; charset=utf-8",
         })
-        object.__setattr__(self, "body", json.dumps({
-            "model": data.model,
-            "contents": [{
-                "parts": [{
-                    "text": "{{ segment.prompt | replace('\"','\\\"') }}: {{ segment.text | replace('\"','\\\"') }}"
-                }]
-            }],
-            "generationConfig": {
-                "responseModalities": ["AUDIO"],
-                "speechConfig": {
-                    "voiceConfig": {
-                        "prebuiltVoiceConfig": {
-                            "voiceName": "{{ speaker.voice | replace('\"','\\\"') }}"
-                        }
-                    }
-                }
-            }
-        }))
+        object.__setattr__(self, "body", f"""
+        {{
+          "model": "{data.model}",
+          "contents": [{{
+            "parts": [{{
+              "text": "{{{{ segment.prompt | replace('\\"','\\\\\\"') }}}}\\n\\n{{{{ segment.text | replace('\\"','\\\\\\"') }}}}"
+            }}]
+          }}],
+          "generationConfig": {{
+            "responseModalities": ["AUDIO"],
+            "speechConfig": {{
+            
+              {{% if speakers | length <= 1 %}}
+            
+              "voiceConfig": {{
+                "prebuiltVoiceConfig": {{
+                  "voiceName": "{{{{ speakers[0].voice | replace('\\"','\\\\\\"') }}}}"
+                }}
+              }}
+            
+              {{% else %}}
+            
+              "multiSpeakerVoiceConfig": {{
+                "speakerVoiceConfigs": [
+                  {{% for speaker in speakers %}}
+                  {{
+                    "speaker": "{{{{ speaker.alias | replace('\\"','\\\\\\"') }}}}",
+                    "voiceConfig": {{
+                      "prebuiltVoiceConfig": {{
+                        "voiceName": "{{{{ speaker.voice | replace('\\"','\\\\\\"') }}}}"
+                      }}
+                    }}
+                  }}{{% if not loop.last %}},{{% endif %}}
+                  {{% endfor %}}
+                ]
+              }}
+              
+              {{% endif %}}
+              
+            }}
+          }}
+        }}
+        """)
 
     def decode(self, response: Response) -> bytes:
 

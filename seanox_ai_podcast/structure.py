@@ -94,9 +94,15 @@ class Service(HashableStruct):
 
 @dataclass
 class Audio(HashableStruct):
+    rms: float | None = None
     service: Service | None = None
 
     def __post_init__(self):
+        if self.rms:
+            if not isinstance(self.rms, int) and not isinstance(self.rms, float):
+                raise ValueError("YAML [structure]: audio.rms.normalize must be a float 0 ... 1")
+            if self.rms < 0 or self.rms > 1:
+                raise ValueError("YAML [structure]: audio.rms.normalize must be a float 0 ... 1")
         if not self.service:
             raise ValueError("YAML [structure]: audio.service is required")
 
@@ -272,14 +278,17 @@ def parse(source: str | Path) -> Podcast:
     audio = structure.get("audio", {})
     service = audio.get("service", {})
     provider = AudioService(service)
-    audio = Audio(service=Service(
-        proxy=service.get("proxy"),
-        timeout=service.get("timeout", -1),
-        url=provider.url,
-        headers=provider.headers,
-        body=provider.body,
-        decode=provider.decode
-    ))
+    audio = Audio(
+        rms=audio.get("rms", {}).get("normalize"),
+        service=Service(
+            proxy=service.get("proxy"),
+            timeout=service.get("timeout", -1),
+            url=provider.url,
+            headers=provider.headers,
+            body=provider.body,
+            decode=provider.decode
+        )
+    )
 
     speakers = {}
     for name, speaker in structure.get("speakers", {}).items():

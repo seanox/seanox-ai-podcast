@@ -84,12 +84,20 @@ def _create_segment_wav(service: Service, segment: structure.Segment, workspace:
         file.write(data)
 
 
-def read_wav(path: Path):
-    with wave.open(str(path), "rb") as w:
-        params = w.getparams()
-        frames = w.readframes(w.getnframes())
-        data = numpy.frombuffer(frames, dtype=numpy.int16)
-    return data, params
+def _rms_normalize_segment_wav(audio: numpy.ndarray, target: float) -> numpy.ndarray:
+    """
+    Normalizes an audio segment to a target RMS level.
+
+    :param data: numpy.int16 audio data
+    :param target: Target RMS in the range 0..1 (1 = max 16-bit)
+    :return: Normalized numpy.int16 audio data
+    """
+    data = audio.astype(numpy.float32) / 32768
+    rms = numpy.sqrt(numpy.mean(data**2))
+    if rms <= 0:
+        return audio
+    data = numpy.clip(data * (target / rms), -1.0, 1.0)
+    return (data * 32767).astype(numpy.int16)
 
 
 def _mix_podcast_wav(podcast, workspace: Path, target: Path, simulate: bool = False):
@@ -115,6 +123,9 @@ def _mix_podcast_wav(podcast, workspace: Path, target: Path, simulate: bool = Fa
             params = input.getparams()
             frames = input.readframes(input.getnframes())
             data = numpy.frombuffer(frames, dtype=numpy.int16)
+
+        if podcast.audio.rms:
+            data = _rms_normalize_segment_wav(data, podcast.audio.rms)
 
         sample_rate = params.framerate
         samples_per_ms = sample_rate / 1000

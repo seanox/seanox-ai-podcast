@@ -51,7 +51,7 @@ def _create_segment_wav(service: Service, segment: structure.Segment, workspace:
 
     # According to RFC 2045 (5.1.), the Content-Type is determined strictly
     content_type = service.headers.get("content-type", "")
-    content_type = re.sub(r"\s*;.*$", "", content_type).lower().strip();
+    content_type = re.sub(r"\s*;.*$", "", content_type).lower().strip()
     if content_type != "application/json":
         raise PipelineError("Invalid payload: Only application/json is supported")
 

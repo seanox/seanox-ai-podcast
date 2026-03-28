@@ -88,7 +88,7 @@ def _rms_normalize_segment_wav(audio: numpy.ndarray, target: float) -> numpy.nda
     """
     Normalizes an audio segment to a target RMS level.
 
-    :param data: numpy.int16 audio data
+    :param audio: numpy.int16 audio data
     :param target: Target RMS in the range 0..1 (1 = max 16-bit)
     :return: Normalized numpy.int16 audio data
     """
